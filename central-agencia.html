@@ -52,10 +52,10 @@
     </section>
 
     <section class="metrics" aria-label="Resumo">
-      <article class="metric"><span>Clientes ativos</span><b>2</b><small>Margô + ambiente de teste</small></article>
-      <article class="metric"><span>Aguardando cliente</span><b>3</b><small>posts para revisar</small></article>
-      <article class="metric"><span>Com ajustes</span><b>1</b><small>pedido recebido</small></article>
-      <article class="metric"><span>Aprovados este mês</span><b>6</b><small>conteúdos liberados</small></article>
+      <article class="metric"><span>Clientes ativos</span><b id="metricClients">—</b><small id="metricClientsNote">carregando clientes</small></article>
+      <article class="metric"><span>Aguardando cliente</span><b id="metricPending">—</b><small>posts para revisar</small></article>
+      <article class="metric"><span>Com ajustes</span><b id="metricAdjust">—</b><small>pedido recebido</small></article>
+      <article class="metric"><span>Aprovados</span><b id="metricApproved">—</b><small>conteúdos liberados</small></article>
     </section>
 
     <section>
@@ -63,19 +63,8 @@
         <div><h2>Seus clientes</h2><p>Entre em uma conta para organizar e acompanhar a rodada.</p></div>
         <div class="tools"><input class="search" id="clientSearch" type="search" placeholder="Buscar cliente"><select class="filter" id="clientFilter" aria-label="Filtrar clientes"><option value="all">Todos</option><option value="pending">Com pendências</option><option value="done">Concluídos</option></select></div>
       </div>
-      <div class="clients">
-        <article class="client" data-client data-name="margô cafés especiais margo joinville" data-status="done" style="--mark:#8b1f59;--progress:100%">
-          <div class="client-top"><div class="brandmark">M</div><div class="client-name"><h3>Margô Cafés Especiais</h3><span>@margo · Joinville</span></div><button class="more" aria-label="Mais opções">···</button></div>
-          <div class="status"><div class="stat"><span>Posts</span><b>3</b></div><div class="stat"><span>Aprovados</span><b>3</b></div><div class="stat"><span>Ajustes</span><b>0</b></div></div>
-          <div class="progress"><i></i></div>
-          <div class="client-foot"><span class="pill done">Rodada aprovada</span><a class="open" href="index.html">Abrir cliente →</a></div>
-        </article>
-        <article class="client" data-client data-name="giovanna gio portfolio pmtgii teste" data-status="pending" style="--mark:#21171c;--progress:50%">
-          <div class="client-top"><div class="brandmark"><img src="logo-primary.svg" alt=""></div><div class="client-name"><h3>Giovanna · Portfólio</h3><span>@pmtgii · cliente de teste</span></div><button class="more" aria-label="Mais opções">···</button></div>
-          <div class="status"><div class="stat"><span>Posts</span><b>6</b></div><div class="stat"><span>Aprovados</span><b>3</b></div><div class="stat"><span>Ajustes</span><b>1</b></div></div>
-          <div class="progress"><i></i></div>
-          <div class="client-foot"><span class="pill pending">3 aguardando</span><button class="open" data-demo="Giovanna · Portfólio">Abrir teste →</button></div>
-        </article>
+      <div class="clients" id="clientsGrid">
+        <article class="client empty-card"><span>Carregando clientes…</span></article>
         <article class="client empty-card"><button id="addClient"><strong>+ Adicionar cliente</strong><span>Crie o perfil e prepare a primeira rodada</span></button></article>
       </div>
     </section>
@@ -91,10 +80,14 @@
   </main>
 </div>
 <div class="local-note" id="localNote" hidden role="status" aria-live="polite"><strong>Protótipo local</strong><span id="localNoteText"></span></div>
+<script src="supabase.js"></script>
+<script src="config.js"></script>
 <script>
+const CFG = window.APROVACAO_CONFIG || {};
+const sb = (window.supabase && CFG.url && CFG.key) ? window.supabase.createClient(CFG.url, CFG.key) : null;
 const search = document.querySelector('#clientSearch');
 const filter = document.querySelector('#clientFilter');
-const clientCards = [...document.querySelectorAll('[data-client]')];
+let clientCards = [];
 const note = document.querySelector('#localNote');
 const noteText = document.querySelector('#localNoteText');
 let noteTimer;
@@ -110,6 +103,64 @@ function applyFilters(){
     card.hidden = !(matchesText && matchesStatus);
   });
 }
+function esc(value){ return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char])); }
+function statusFor({pendente, ajuste, aprovado, total}){
+  if (pendente) return ['pending', `${pendente} aguardando`];
+  if (ajuste) return ['adjust', `${ajuste} com ajuste`];
+  if (total && aprovado === total) return ['done', 'Rodada aprovada'];
+  return ['done', total ? 'Em preparação' : 'Sem posts'];
+}
+function renderClients(clients, profiles, posts, rounds){
+  const profileByClient = new Map(profiles.map(profile => [profile.cliente_id, profile]));
+  const postsByClient = new Map();
+  posts.forEach(post => postsByClient.set(post.cliente_id, [...(postsByClient.get(post.cliente_id) || []), post]));
+  const roundsByClient = new Map();
+  rounds.forEach(round => roundsByClient.set(round.cliente_id, round));
+  const grid = document.querySelector('#clientsGrid');
+  const cards = clients.map((client, index) => {
+    const currentPosts = postsByClient.get(client.id) || [];
+    const counts = currentPosts.reduce((acc, post) => { acc.total++; acc[post.status] = (acc[post.status] || 0) + 1; return acc; }, {total:0, pendente:0, ajuste:0, aprovado:0});
+    const [status, label] = statusFor(counts);
+    const profile = profileByClient.get(client.id);
+    const round = roundsByClient.get(client.id);
+    const mark = client.slug === 'margo' ? '#8b1f59' : '#21171c';
+    const initial = (client.nome || '?').trim().charAt(0).toUpperCase();
+    const meta = [client.usuario_instagram ? `@${client.usuario_instagram.replace(/^@/,'')}` : '', client.cidade || (client.slug === 'gio-portfolio' ? 'cliente de teste' : '')].filter(Boolean).join(' · ');
+    const reviewed = counts.aprovado + counts.ajuste;
+    const progress = counts.total ? Math.round(reviewed / counts.total * 100) : 0;
+    const profileName = profile?.nome || client.nome;
+    return `<article class="client" data-client data-name="${esc(`${client.nome} ${client.slug} ${meta}`)}" data-status="${status}" style="--mark:${mark};--progress:${progress}%">
+      <div class="client-top"><div class="brandmark">${esc(initial)}</div><div class="client-name"><h3>${esc(profileName)}</h3><span>${esc(meta || 'Perfil em preparação')}</span></div></div>
+      <div class="status"><div class="stat"><span>Posts</span><b>${counts.total}</b></div><div class="stat"><span>Aprovados</span><b>${counts.aprovado}</b></div><div class="stat"><span>Ajustes</span><b>${counts.ajuste}</b></div></div>
+      <div class="progress"><i></i></div>
+      <div class="client-foot"><span class="pill ${status}">${esc(round?.nome || label)}</span><a class="open" href="index.html?cliente=${encodeURIComponent(client.slug)}">Abrir cliente →</a></div>
+    </article>`;
+  });
+  cards.push('<article class="client empty-card"><button id="addClient"><strong>+ Adicionar cliente</strong><span>Crie o perfil e prepare a primeira rodada</span></button></article>');
+  grid.innerHTML = cards.join('');
+  clientCards = [...grid.querySelectorAll('[data-client]')];
+  const allPosts = posts.reduce((acc, post) => { acc[post.status] = (acc[post.status] || 0) + 1; return acc; }, {pendente:0,ajuste:0,aprovado:0});
+  document.querySelector('#metricClients').textContent = clients.filter(client => client.ativo).length;
+  document.querySelector('#metricClientsNote').textContent = clients.length === 1 ? '1 cliente cadastrado' : `${clients.length} clientes cadastrados`;
+  document.querySelector('#metricPending').textContent = allPosts.pendente;
+  document.querySelector('#metricAdjust').textContent = allPosts.ajuste;
+  document.querySelector('#metricApproved').textContent = allPosts.aprovado;
+  document.querySelector('#addClient').addEventListener('click', () => showNote('O cadastro pela Central será a próxima etapa. Por enquanto, os clientes são criados com segurança pelo Supabase.'));
+}
+async function loadClients(){
+  if (!sb) throw new Error('configuração ausente');
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) throw new Error('sessão da agência necessária');
+  const [clients, profiles, posts, rounds] = await Promise.all([
+    sb.from('clientes').select('*').eq('ativo', true).order('criado_em'),
+    sb.from('perfil').select('*'),
+    sb.from('posts').select('cliente_id,status'),
+    sb.from('rodadas').select('*').order('criado_em',{ascending:false})
+  ]);
+  const error = clients.error || profiles.error || posts.error || rounds.error;
+  if (error) throw error;
+  renderClients(clients.data || [], profiles.data || [], posts.data || [], rounds.data || []);
+}
 function showNote(message){
   clearTimeout(noteTimer);
   noteText.textContent = message;
@@ -121,12 +172,17 @@ function showNote(message){
 search.addEventListener('input', applyFilters);
 filter.addEventListener('change', applyFilters);
 document.querySelector('#newRound').addEventListener('click', () => showNote('A criação de rodadas será ligada ao banco de homologação na próxima etapa.'));
-document.querySelector('#addClient').addEventListener('click', () => showNote('O cadastro de clientes será ativado depois que validarmos a estrutura do Supabase.'));
 document.querySelector('#copyLink').addEventListener('click', async () => {
   try { await navigator.clipboard.writeText(new URL('index.html', location.href).href); showNote('Link local da Margô copiado.'); }
   catch { showNote('Abra a Margô e copie o endereço exibido no navegador.'); }
 });
-document.querySelectorAll('[data-demo]').forEach(button => button.addEventListener('click', () => showNote(`${button.dataset.demo} é um cliente fictício usado para validar o painel sem misturar dados reais.`)));
+loadClients().catch(error => {
+  const login = /sessão/.test(error.message || '');
+  document.querySelector('#clientsGrid').innerHTML = login
+    ? '<article class="client empty-card"><div><strong>Entre na Área da agência primeiro.</strong><span>Faça login pela página de aprovação e volte para esta Central.</span></div></article>'
+    : '<article class="client empty-card"><div><strong>Não foi possível carregar os clientes.</strong><span>Confira as permissões da Central e recarregue a página.</span></div></article>';
+  showNote(login ? 'Faça login como administradora para visualizar os clientes.' : 'Não consegui buscar os clientes no banco.');
+});
 </script>
 </body>
 </html>

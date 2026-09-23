@@ -355,6 +355,7 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const CFG = window.APROVACAO_CONFIG || {};
 const sb = (window.supabase && CFG.url && CFG.key) ? window.supabase.createClient(CFG.url, CFG.key) : null;
+const CLIENT_SLUG = new URLSearchParams(location.search).get('cliente') || 'margo';
 const BUCKET = 'midias';
 const LIMIT = 50 * 1024 * 1024, TARGET = 44 * 1024 * 1024;
 function loadScript(src){ return new Promise((ok, no) => { if (window.Mediabunny) return ok(); const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => no(new Error('load')); document.head.appendChild(s); }); }
@@ -390,7 +391,7 @@ const TYPES = {post:'Post', carrossel:'Carrossel', reels:'Reels'};
 
 const S = {
   posts: [], perfil: {nome:'', usuario:'perfil', bio:'', seguidores:'0', seguindo:'0', avatar:null},
-  sel: null, slide: 0, mode: 'cliente', isOwner: false, session: null,
+  sel: null, slide: 0, mode: 'cliente', isOwner: false, session: null, clientId: null, roundId: null,
   showStatus: true, capOpen: false, busy: false, draft: {}, reelView: 'reels', ar: {}
 };
 try { const v = localStorage.getItem('ap_showStatus'); if (v !== null) S.showStatus = v === '1'; } catch(e){}
@@ -625,12 +626,17 @@ function renderAll(){ renderMode(); renderProfile(); renderSummary(); renderGrid
 /* ---------- data ---------- */
 function errMsg(e){ const m = (e && (e.message||'')) || ''; return /permission|policy|JWT|401|403/i.test(m) ? 'Você não tem permissão para esta ação.' : 'Não foi possível salvar. Confira a internet e tente de novo.'; }
 async function loadAll(){
-  const [pf, ps, cs] = await Promise.all([
-    sb.from('perfil').select('*').eq('id',1).maybeSingle(),
-    sb.from('posts').select('*').order('ordem',{ascending:false}),
-    sb.from('comentarios').select('*').order('created_at',{ascending:true})
+  const client = await sb.from('clientes').select('id').eq('slug', CLIENT_SLUG).maybeSingle();
+  if (client.error || !client.data) throw (client.error || new Error('cliente não encontrado'));
+  S.clientId = client.data.id;
+  const [pf, ps, cs, rd] = await Promise.all([
+    sb.from('perfil').select('*').eq('cliente_id', S.clientId).maybeSingle(),
+    sb.from('posts').select('*').eq('cliente_id', S.clientId).order('ordem',{ascending:false}),
+    sb.from('comentarios').select('*').order('created_at',{ascending:true}),
+    sb.from('rodadas').select('id').eq('cliente_id', S.clientId).order('criado_em',{ascending:false}).limit(1).maybeSingle()
   ]);
-  if (pf.error || ps.error || cs.error) throw (pf.error || ps.error || cs.error);
+  if (pf.error || ps.error || cs.error || rd.error) throw (pf.error || ps.error || cs.error || rd.error);
+  S.roundId = rd.data?.id || null;
   if (pf.data) S.perfil = {...S.perfil, ...pf.data};
   const byPost = {};
   (cs.data||[]).forEach(c => (byPost[c.post_id] ||= []).push({autor:c.autor, texto:c.texto, em:c.created_at}));
@@ -854,7 +860,7 @@ async function submitPost(){
     const doc = { tipo: F.tipo, legenda, midias, capa, drive_url };
     if (!F.id){
       const maxOrd = Math.max(0, ...S.posts.map(p=>p.ordem||0));
-      Object.assign(doc, {ordem: maxOrd+1, status: publicado?'publicado':'pendente'});
+      Object.assign(doc, {ordem: maxOrd+1, status: publicado?'publicado':'pendente', cliente_id:S.clientId, rodada_id:S.roundId});
       const { data, error } = await sb.from('posts').insert(doc).select('id').single();
       if (error) throw error;
       S.sel = data.id; S.slide = 0;
@@ -918,7 +924,7 @@ function openProfileForm(){
     try {
       let avatar = av ? av.id || null : null;
       if (av && av.file){ avatar = await upload(av.file); if (p.avatar) { try{ await sb.storage.from(BUCKET).remove([p.avatar]); }catch(err){} } }
-      const { error } = await sb.from('perfil').update({ usuario: $('#prUser').value.trim().replace(/^@/,''), nome: $('#prNome').value.trim(), seguidores: $('#prSeg').value.trim(), seguindo: $('#prSegu').value.trim(), bio: $('#prBio').value, avatar, updated_at: new Date().toISOString() }).eq('id',1);
+      const { error } = await sb.from('perfil').update({ usuario: $('#prUser').value.trim().replace(/^@/,''), nome: $('#prNome').value.trim(), seguidores: $('#prSeg').value.trim(), seguindo: $('#prSegu').value.trim(), bio: $('#prBio').value, avatar, updated_at: new Date().toISOString() }).eq('cliente_id', S.clientId);
       if (error) throw error;
       closeModal(m); toast('Perfil salvo'); await refresh();
     } catch(err){ $('#prErr').textContent = 'Não foi possível salvar o perfil.'; btn.disabled=false; }
@@ -943,7 +949,7 @@ $('#btnDrive').addEventListener('click', () => {
     const raw = $('#drUrl').value.trim(); const url = raw ? safeUrl(raw) : null;
     if (raw && !url){ $('#drErr').textContent = 'O link precisa começar com https://'; return; }
     const btn = $('#drSave'); btn.disabled = true;
-    const { error } = await sb.from('perfil').update({ drive_url: url, updated_at: new Date().toISOString() }).eq('id', 1);
+    const { error } = await sb.from('perfil').update({ drive_url: url, updated_at: new Date().toISOString() }).eq('cliente_id', S.clientId);
     if (error){ $('#drErr').textContent = errMsg(error); btn.disabled = false; return; }
     closeModal(m); toast(url ? 'Link do Drive salvo' : 'Link do Drive removido'); await refresh();
   });
