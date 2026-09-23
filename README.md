@@ -1,4 +1,20 @@
-# Plataforma de aprovação
+# Plataforma de aprovação · Gio
+
+> Pacote local preparado para revisão antes da publicação. A versão atual da Margô
+> permanece funcional e a evolução multi-cliente está incluída de forma aditiva.
+
+## Entradas
+
+- `index.html`: experiência de aprovação do cliente, atualmente conectada à Margô.
+- `central-agencia.html`: nova visão geral da agência, com Margô e Giovanna como cliente de teste.
+- `PLANO_MULTICLIENTE.md`: arquitetura e sequência segura de implantação.
+- `supabase/migrations/001_multicliente_draft.sql`: rascunho aditivo da migração; não foi executado.
+
+## Importante antes de publicar
+
+O painel multi-cliente ainda usa dados demonstrativos. A migração SQL precisa ser
+validada primeiro em um projeto Supabase de homologação, junto com novas políticas
+RLS e funções RPC isoladas por cliente. Não execute o SQL diretamente em produção.
 
 Plataforma para clientes aprovarem posts do Instagram antes da publicação. O cliente abre um link comum, sem login, e vê:
 
