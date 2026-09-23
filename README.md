@@ -19,6 +19,7 @@ Visual com a identidade do studio Gio.
 | `index.html` | A plataforma (HTML, CSS e JS num arquivo só) |
 | `config.js` | Endereço e chave pública do Supabase |
 | `supabase.js` | Biblioteca `@supabase/supabase-js` 2.117.0 (build UMD, local) |
+| `mediabunny.js` | Biblioteca Mediabunny 1.59.0 (MPL-2.0). Comprime no navegador os vídeos acima de 50 MB antes do envio |
 | `vercel.json` | Configuração da Vercel (não indexar no Google) |
 | `margo-logo.png` | Logo da Margô, para enviar como foto do perfil |
 | `versao-claude/` | Versão anterior, que roda como Artifact do Claude |
@@ -29,8 +30,8 @@ A chave em `config.js` é a **chave pública** (publishable). Ela pode ficar no 
 
 Projeto **Plataforma de aprovação** (`vbnsjwbqwldbvzuzmbbp`), região São Paulo.
 
-- **`perfil`**: uma linha, com usuário, nome, bio, seguidores, seguindo e avatar.
-- **`posts`**: ordem, tipo (`post` | `carrossel` | `reels`), status (`pendente` | `aprovado` | `ajuste` | `publicado`), legenda, `midias` (`[{id: caminho no storage, tipo}]`), capa e `decidido_em`.
+- **`perfil`**: uma linha, com usuário, nome, bio, seguidores, seguindo, avatar e `drive_url` (pasta do Drive com os arquivos em alta, que aparece no botão “Baixar em alta qualidade”).
+- **`posts`**: ordem, tipo (`post` | `carrossel` | `reels`), status (`pendente` | `aprovado` | `ajuste` | `publicado`), legenda, `midias` (`[{id: caminho no storage, tipo}]`), capa, `drive_url` (link opcional de download do post) e `decidido_em`.
 - **`comentarios`**: `post_id`, autor (`cliente` | `agencia` | `sistema`) e texto.
 - **`admins`**: e-mails que podem editar.
 - **Storage `midias`**: bucket público para leitura; só admins enviam, trocam ou apagam arquivos. Limite de 50 MB por arquivo.
