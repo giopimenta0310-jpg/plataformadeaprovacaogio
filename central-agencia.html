@@ -110,6 +110,17 @@ function statusFor({pendente, ajuste, aprovado, total}){
   if (total && aprovado === total) return ['done', 'Rodada aprovada'];
   return ['done', total ? 'Em preparação' : 'Sem posts'];
 }
+function stageKey(p){
+  const e = p.etapa || 'aprovacao';
+  if (e==='aprovado' || e==='publicado') return 'aprovado';
+  const st = e==='copy' ? p.copy_status : e==='aprovacao' ? p.status : null;
+  return st==='pendente' ? 'pendente' : st==='ajuste' ? 'ajuste' : null;
+}
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-copy]'); if (!b) return;
+  try { await navigator.clipboard.writeText(b.dataset.copy); showNote('Link do cliente copiado. É só mandar para ele.'); }
+  catch { showNote('Não consegui copiar. Clique em “Abrir” e copie o endereço do navegador.'); }
+});
 function renderClients(clients, profiles, posts, rounds){
   const profileByClient = new Map(profiles.map(profile => [profile.cliente_id, profile]));
   const postsByClient = new Map();
@@ -119,7 +130,7 @@ function renderClients(clients, profiles, posts, rounds){
   const grid = document.querySelector('#clientsGrid');
   const cards = clients.map((client, index) => {
     const currentPosts = postsByClient.get(client.id) || [];
-    const counts = currentPosts.reduce((acc, post) => { acc.total++; acc[post.status] = (acc[post.status] || 0) + 1; return acc; }, {total:0, pendente:0, ajuste:0, aprovado:0});
+    const counts = currentPosts.reduce((acc, post) => { acc.total++; const k = stageKey(post); if (k) acc[k]++; return acc; }, {total:0, pendente:0, ajuste:0, aprovado:0});
     const [status, label] = statusFor(counts);
     const profile = profileByClient.get(client.id);
     const round = roundsByClient.get(client.id);
@@ -133,13 +144,13 @@ function renderClients(clients, profiles, posts, rounds){
       <div class="client-top"><div class="brandmark">${esc(initial)}</div><div class="client-name"><h3>${esc(profileName)}</h3><span>${esc(meta || 'Perfil em preparação')}</span></div></div>
       <div class="status"><div class="stat"><span>Posts</span><b>${counts.total}</b></div><div class="stat"><span>Aprovados</span><b>${counts.aprovado}</b></div><div class="stat"><span>Ajustes</span><b>${counts.ajuste}</b></div></div>
       <div class="progress"><i></i></div>
-      <div class="client-foot"><span class="pill ${status}">${esc(round?.nome || label)}</span><a class="open" href="index.html?cliente=${encodeURIComponent(client.slug)}">Abrir cliente →</a></div>
+      <div class="client-foot"><span class="pill ${status}">${esc(round?.nome || label)}</span><span style="display:flex;gap:10px;align-items:center"><button type="button" class="open" data-copy="${esc(new URL('index.html?c='+client.token_publico, location.href).href)}" style="border:0;background:none;cursor:pointer;font:inherit;color:inherit;padding:0;text-decoration:underline;text-underline-offset:3px">Copiar link do cliente</button><a class="open" href="index.html?c=${encodeURIComponent(client.token_publico)}">Abrir →</a></span></div>
     </article>`;
   });
   cards.push('<article class="client empty-card"><button id="addClient"><strong>+ Adicionar cliente</strong><span>Crie o perfil e prepare a primeira rodada</span></button></article>');
   grid.innerHTML = cards.join('');
   clientCards = [...grid.querySelectorAll('[data-client]')];
-  const allPosts = posts.reduce((acc, post) => { acc[post.status] = (acc[post.status] || 0) + 1; return acc; }, {pendente:0,ajuste:0,aprovado:0});
+  const allPosts = posts.reduce((acc, post) => { const k = stageKey(post); if (k) acc[k]++; return acc; }, {pendente:0,ajuste:0,aprovado:0});
   document.querySelector('#metricClients').textContent = clients.filter(client => client.ativo).length;
   document.querySelector('#metricClientsNote').textContent = clients.length === 1 ? '1 cliente cadastrado' : `${clients.length} clientes cadastrados`;
   document.querySelector('#metricPending').textContent = allPosts.pendente;
@@ -154,7 +165,7 @@ async function loadClients(){
   const [clients, profiles, posts, rounds] = await Promise.all([
     sb.from('clientes').select('*').eq('ativo', true).order('criado_em'),
     sb.from('perfil').select('*'),
-    sb.from('posts').select('cliente_id,status'),
+    sb.from('posts').select('cliente_id,status,etapa,copy_status'),
     sb.from('rodadas').select('*').order('criado_em',{ascending:false})
   ]);
   const error = clients.error || profiles.error || posts.error || rounds.error;
@@ -173,8 +184,10 @@ search.addEventListener('input', applyFilters);
 filter.addEventListener('change', applyFilters);
 document.querySelector('#newRound').addEventListener('click', () => showNote('A criação de rodadas será ligada ao banco de homologação na próxima etapa.'));
 document.querySelector('#copyLink').addEventListener('click', async () => {
-  try { await navigator.clipboard.writeText(new URL('index.html', location.href).href); showNote('Link local da Margô copiado.'); }
-  catch { showNote('Abra a Margô e copie o endereço exibido no navegador.'); }
+  const first = document.querySelector('[data-copy]');
+  if (!first){ showNote('Entre na Área da agência para ver os links dos clientes.'); return; }
+  try { await navigator.clipboard.writeText(first.dataset.copy); showNote('Link do primeiro cliente copiado.'); }
+  catch { showNote('Use “Copiar link do cliente” no card de cada cliente.'); }
 });
 loadClients().catch(error => {
   const login = /sessão/.test(error.message || '');

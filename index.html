@@ -270,6 +270,54 @@ textarea{resize:vertical;min-height:76px}
   .round-progress{width:100%;justify-content:space-between}.round-track{flex:1;width:auto}
 }
 @media (max-width:480px){ .types{grid-template-columns:1fr} .two{grid-template-columns:1fr} .avatar{width:66px;height:66px} .ph-head{gap:12px} }
+
+/* ---------- Quadro (etapas) ---------- */
+.views{width:min(1360px,calc(100% - 32px));margin-inline:auto;display:flex;gap:4px;border-bottom:1px solid var(--line)}
+.views button{border:0;background:none;padding:10px 14px;font-size:14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;display:inline-flex;gap:8px;align-items:center}
+.views button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--coral)}
+.views .n{font-size:11px;font-weight:700;background:var(--surface-2);border-radius:999px;padding:1px 7px;color:var(--muted)}
+.views button[aria-selected="true"] .n{background:var(--ink);color:var(--ground)}
+.board-wrap{width:min(1360px,calc(100% - 32px));margin-inline:auto}
+.board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(250px,1fr);gap:14px;overflow-x:auto;padding-bottom:12px;scroll-snap-type:x proximity;align-items:start}
+.col{background:var(--surface-2);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px;scroll-snap-align:start;min-height:180px;border-top:3px solid var(--col,var(--line))}
+.col[data-k="copy"]{--col:#f4c95d}.col[data-k="producao"]{--col:#d9a6cf}.col[data-k="aprovacao"]{--col:#f29ac2}.col[data-k="aprovado"]{--col:#2f7a55}.col[data-k="publicado"]{--col:#8a7d83}
+.col-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.col-h h3{margin:0;font-size:14px;font-weight:700}
+.col-h .n{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.col-d{margin:-6px 0 0;font-size:12px;color:var(--muted)}
+.col-empty{font-size:12.5px;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:14px;text-align:center}
+.kcard{all:unset;box-sizing:border-box;cursor:pointer;display:flex;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:11px 12px;transition:border-color .15s,box-shadow .15s,transform .15s}
+.kcard:hover{border-color:var(--muted);box-shadow:0 6px 18px -12px rgba(33,23,28,.45)}
+.kcard:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.kcard.turn{border-color:var(--coral);box-shadow:0 0 0 1px var(--coral)}
+.kcard .kthumb{flex:none;width:46px;aspect-ratio:3/4;border-radius:4px;overflow:hidden;background:var(--surface-2)}
+.kcard .kthumb img,.kcard .kthumb video,.kcard .kthumb .sample{width:100%;height:100%;object-fit:cover;display:block}
+.kcard .kthumb .sample{font-size:0;padding:0}
+.kbody{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
+.kmeta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:11.5px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:11px;font-weight:600;color:var(--ink);background:var(--surface)}
+.ktitle{font-family:var(--serif);font-size:16.5px;line-height:1.15;letter-spacing:-.01em;overflow-wrap:anywhere}
+.kexc{font-size:12.5px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kfoot{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap}
+.kstate{font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;display:inline-flex;align-items:center;gap:5px}
+.kstate i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.kstate.pend{background:var(--pend-soft);color:var(--pend)}.kstate.adj{background:var(--warn-soft);color:var(--warn)}.kstate.ok{background:var(--ok-soft);color:var(--ok)}.kstate.muted{background:var(--surface-2);color:var(--muted)}
+.kcom{font-size:11.5px;color:var(--muted);display:inline-flex;gap:3px;align-items:center}
+.col-add{border:1px dashed var(--line);background:transparent;border-radius:6px;padding:9px;font-size:13px;font-weight:600;color:var(--muted)}
+.col-add:hover{color:var(--ink);border-color:var(--muted)}
+.cardbox{max-width:680px!important}
+.cardbox .cmeta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted)}
+.cardbox h2{font-size:clamp(26px,4vw,34px)!important}
+.textblock{background:var(--surface-2);border-radius:4px;padding:14px 16px;font-size:14.5px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.textblock .ht{color:var(--accent);font-weight:600}
+.sec-h{margin:0;font-size:13px;font-weight:600}
+.stepper{display:flex;gap:4px;flex-wrap:wrap}
+.stepper span{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--muted)}
+.stepper span.on{background:var(--ink);color:var(--ground)}
+.stepper span.done{background:var(--ok-soft);color:var(--ok)}
+.cardbox .decide{position:static;box-shadow:none;border:0;padding:0;background:none}
+@media (max-width:820px){ .board{grid-auto-columns:84%} }
+
 @media (prefers-reduced-motion:reduce){ .detail{transition:none} .car{scroll-behavior:auto} }
 </style>
 <script src="supabase.js"></script>
@@ -305,8 +353,13 @@ textarea{resize:vertical;min-height:76px}
     <a class="btn primary drive-btn" id="driveAll" href="#" target="_blank" rel="noopener noreferrer" hidden><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg> Baixar em alta qualidade</a>
   </div>
   <div class="notice" id="notice" hidden></div>
+  <nav class="views" id="views" role="tablist" aria-label="Visualização">
+    <button type="button" role="tab" data-view="quadro" aria-selected="true">Etapas <span class="n" id="nQuadro">0</span></button>
+    <button type="button" role="tab" data-view="feed" aria-selected="false">Prévia do feed <span class="n" id="nFeed">0</span></button>
+  </nav>
+  <section class="board-wrap" id="boardWrap"><div class="board" id="board"></div></section>
 
-  <main class="layout">
+  <main class="layout" id="feedView" hidden>
     <section class="phone-col">
       <div class="agency-bar" id="agencyBar" hidden>
         <button type="button" class="btn primary" id="btnNew">+ Novo post</button>
@@ -347,6 +400,7 @@ textarea{resize:vertical;min-height:76px}
 <div class="modal" id="postModal" hidden></div>
 <div class="modal" id="profileModal" hidden></div>
 <div class="modal" id="loginModal" hidden></div>
+<div class="modal" id="cardModal" hidden></div>
 <div class="toast" id="toast" hidden></div>
 
 <script>
@@ -355,7 +409,18 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const CFG = window.APROVACAO_CONFIG || {};
 const sb = (window.supabase && CFG.url && CFG.key) ? window.supabase.createClient(CFG.url, CFG.key) : null;
-const CLIENT_SLUG = new URLSearchParams(location.search).get('cliente') || 'margo';
+const QS = new URLSearchParams(location.search);
+const TOKEN_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const URL_TOKEN = TOKEN_RE.test(QS.get('c')||'') ? QS.get('c') : null;
+const CLIENT_SLUG = QS.get('cliente');
+const ETAPAS = [
+  {k:'copy', t:'Copy e roteiro', d:'Textos para aprovar antes da arte'},
+  {k:'producao', t:'Em produção', d:'Texto aprovado, arte sendo criada'},
+  {k:'aprovacao', t:'Post para aprovação', d:'Veja no feed e aprove'},
+  {k:'aprovado', t:'Aprovado', d:'Pronto para publicar'},
+  {k:'publicado', t:'Publicado', d:'Já está no perfil'}
+];
+const ETAPA_NOME = Object.fromEntries(ETAPAS.map(e=>[e.k,e.t]));
 const BUCKET = 'midias';
 const LIMIT = 50 * 1024 * 1024, TARGET = 44 * 1024 * 1024;
 function loadScript(src){ return new Promise((ok, no) => { if (window.Mediabunny) return ok(); const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => no(new Error('load')); document.head.appendChild(s); }); }
@@ -391,7 +456,7 @@ const TYPES = {post:'Post', carrossel:'Carrossel', reels:'Reels'};
 
 const S = {
   posts: [], perfil: {nome:'', usuario:'perfil', bio:'', seguidores:'0', seguindo:'0', avatar:null},
-  sel: null, slide: 0, mode: 'cliente', isOwner: false, session: null, clientId: null, roundId: null,
+  sel: null, slide: 0, mode: 'cliente', isOwner: false, session: null, clientId: null, roundId: null, token: URL_TOKEN, view: 'quadro', loaded: false,
   showStatus: true, capOpen: false, busy: false, draft: {}, reelView: 'reels', ar: {}
 };
 try { const v = localStorage.getItem('ap_showStatus'); if (v !== null) S.showStatus = v === '1'; } catch(e){}
@@ -429,7 +494,13 @@ function coverEl(p){
   return m ? mediaEl(m,'tile') : '<div class="sample" style="background:var(--phone-line)"></div>';
 }
 function captionHTML(t){ return esc(t).replace(/(^|\s)([#@][\p{L}\p{N}_.]+)/gu, '$1<span class="ht">$2</span>'); }
-function sorted(){ return [...S.posts].sort((a,b)=>(b.ordem||0)-(a.ordem||0)); }
+const FEED_ETAPAS = ['aprovacao','aprovado','publicado'];
+function feedPosts(){ return S.posts.filter(p => FEED_ETAPAS.includes(p.etapa)); }
+function sorted(){ return feedPosts().sort((a,b)=>(b.ordem||0)-(a.ordem||0)); }
+function awaiting(p){ return (p.etapa==='copy' && p.copy_status==='pendente') || (p.etapa==='aprovacao' && p.status==='pendente'); }
+function adjusting(p){ return (p.etapa==='copy' && p.copy_status==='ajuste') || (p.etapa==='aprovacao' && p.status==='ajuste'); }
+function fmtDay(d){ if (!d) return ''; try { const x = new Date(d+'T12:00:00'); return x.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.',''); } catch(e){ return d; } }
+function cardTitle(p){ return p.titulo || (p.legenda||'').split('\n')[0].slice(0,60) || (TYPES[p.tipo]||'Post'); }
 function getPost(id){ return S.posts.find(p=>p.id===id); }
 function editing(){ return S.isOwner && S.mode === 'agencia'; }
 function author(){ return S.isOwner ? 'agencia' : 'cliente'; }
@@ -441,28 +512,79 @@ function renderProfile(){
   const p = S.perfil;
   $('#phHandle').textContent = p.usuario || 'perfil';
   const av = $('#phAvatar'); av.style.backgroundImage = p.avatar ? `url(${blob(p.avatar)})` : '';
-  $('#stPosts').textContent = S.posts.length;
+  $('#stPosts').textContent = feedPosts().length;
   $('#stFollowers').textContent = p.seguidores || '0';
   $('#stFollowing').textContent = p.seguindo || '0';
   $('#phBio').innerHTML = (p.nome?`<b>${esc(p.nome)}</b>`:'') + esc(p.bio||'');
 }
 function renderSummary(){
-  const c = {pendente:0, aprovado:0, ajuste:0};
-  S.posts.forEach(p => { if (c[p.status] !== undefined) c[p.status]++; });
-  const total = c.pendente + c.aprovado + c.ajuste;
-  $('#summary').innerHTML = total ? ['pendente','ajuste','aprovado'].map(k =>
-    `<button type="button" class="pill ${k}" data-jump="${k}" ${c[k]?'':'disabled'}><i></i>${c[k]} ${k==='pendente'?(c[k]===1?'aguardando':'aguardando'):k==='ajuste'?(c[k]===1?'com ajuste':'com ajuste'):(c[k]===1?'aprovado':'aprovados')}</button>`).join('')
-    + `<span class="pill publicado">${total} ${total===1?'post novo':'posts novos'} nesta rodada</span>` : '';
-  const reviewed = c.aprovado + c.ajuste;
+  const all = S.posts;
+  const wait = all.filter(awaiting).length, adj = all.filter(adjusting).length;
+  const done = all.filter(p=>p.etapa==='aprovado'||p.etapa==='publicado').length;
+  const total = all.length;
+  $('#summary').innerHTML = total ? [
+    `<button type="button" class="pill pendente" data-jump="wait" ${wait?'':'disabled'}><i></i>${wait} ${editing()?'aguardando o cliente':'esperando você'}</button>`,
+    `<button type="button" class="pill ajuste" data-jump="adj" ${adj?'':'disabled'}><i></i>${adj} com ajuste</button>`,
+    `<button type="button" class="pill aprovado" data-jump="done" ${done?'':'disabled'}><i></i>${done} ${done===1?'aprovado':'aprovados'}</button>`
+  ].join('') : '';
   const progress = $('#roundProgress');
   progress.hidden = !total;
   if (total){
-    $('#roundProgressText').textContent = reviewed === total ? `Rodada revisada: ${reviewed} de ${total}` : `${reviewed} de ${total} posts revisados`;
-    $('#roundProgressBar').style.width = `${Math.round(reviewed / total * 100)}%`;
+    $('#roundProgressText').textContent = done === total ? `Tudo aprovado: ${done} de ${total}` : `${done} de ${total} conteúdos aprovados`;
+    $('#roundProgressBar').style.width = `${Math.round(done / total * 100)}%`;
   }
+  $('#nQuadro').textContent = total;
+  $('#nFeed').textContent = feedPosts().length;
   const drive = safeUrl(S.perfil.drive_url);
   const dl = $('#driveAll');
   dl.hidden = !drive; if (drive) dl.href = drive;
+}
+function renderView(){
+  document.querySelectorAll('#views button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view===S.view)));
+  $('#boardWrap').hidden = S.view !== 'quadro';
+  $('#feedView').hidden = S.view !== 'feed';
+  $('.check').hidden = S.view !== 'feed';
+}
+function kthumb(p){
+  if (!(p.midias||[]).length) return '';
+  return `<span class="kthumb">${coverEl(p)}</span>`;
+}
+function kstate(p){
+  if (p.etapa==='copy') return p.copy_status==='ajuste' ? '<span class="kstate adj"><i></i>Ajuste pedido</span>' : `<span class="kstate pend"><i></i>${editing()?'Aguardando cliente':'Aprovar texto'}</span>`;
+  if (p.etapa==='producao') return '<span class="kstate muted"><i></i>Em produção</span>';
+  if (p.etapa==='aprovacao') return p.status==='ajuste' ? '<span class="kstate adj"><i></i>Ajuste pedido</span>' : `<span class="kstate pend"><i></i>${editing()?'Aguardando cliente':'Aprovar post'}</span>`;
+  if (p.etapa==='aprovado') return '<span class="kstate ok"><i></i>Aprovado</span>';
+  return '<span class="kstate muted"><i></i>Publicado</span>';
+}
+function colSort(a,b){
+  const da = a.data_prevista || '9999', db = b.data_prevista || '9999';
+  return da < db ? -1 : da > db ? 1 : (a.ordem||0)-(b.ordem||0);
+}
+function renderBoard(){
+  const b = $('#board');
+  b.innerHTML = ETAPAS.map(e => {
+    const items = S.posts.filter(p=>p.etapa===e.k).sort(e.k==='publicado' ? (x,y)=>colSort(y,x) : colSort);
+    const cards = items.map(p => {
+      const ncom = (p.comentarios||[]).filter(c=>c.autor!=='sistema').length;
+      const exc = p.etapa==='copy' || p.etapa==='producao' ? (p.roteiro || p.legenda || '') : (p.legenda || '');
+      return `<button type="button" class="kcard${!editing() && awaiting(p) ? ' turn' : ''}" data-card="${esc(p.id)}">
+        ${kthumb(p)}
+        <span class="kbody">
+          <span class="kmeta"><span class="chip">${esc(TYPES[p.tipo]||'Post')}</span>${p.data_prevista?`<span>${esc(fmtDay(p.data_prevista))}</span>`:''}</span>
+          <span class="ktitle">${esc(cardTitle(p))}</span>
+          ${exc ? `<span class="kexc">${esc(exc)}</span>` : ''}
+          <span class="kfoot">${kstate(p)}${ncom?`<span class="kcom" title="Comentários">💬 ${ncom}</span>`:''}</span>
+        </span>
+      </button>`;
+    }).join('');
+    const add = editing() && e.k==='copy' ? '<button type="button" class="col-add" data-newcard>+ Novo card</button>' : '';
+    return `<section class="col" data-k="${e.k}" aria-label="${esc(e.t)}">
+      <div class="col-h"><h3>${esc(e.t)}</h3><span class="n">${items.length}</span></div>
+      <p class="col-d">${esc(e.d)}</p>
+      ${cards || (add ? '' : '<div class="col-empty">Nada por aqui</div>')}
+      ${add}
+    </section>`;
+  }).join('');
 }
 function renderGrid(){
   const list = sorted();
@@ -493,8 +615,8 @@ function renderDetail(){
   const cap = p.legenda || '';
   const long = cap.length > 140 || cap.split('\n').length > 3;
   const capShown = (!long || S.capOpen) ? captionHTML(cap) : captionHTML(cap.split('\n').slice(0,2).join('\n').slice(0,125)) + '… <button type="button" class="more-link" data-act="capmore">mais</button>';
-  const comments = p.comentarios || [];
-  const canDecide = p.status !== 'publicado';
+  const comments = (p.comentarios || []).filter(c => c.etapa !== 'copy');
+  const canDecide = p.etapa === 'aprovacao';
   const list = sorted(); const idx = list.findIndex(x=>x.id===p.id);
 
   const isReel = p.tipo === 'reels';
@@ -535,7 +657,7 @@ function renderDetail(){
     </div>`;
   d.innerHTML = `
   <div class="detail-head">
-    <h2>${esc(TYPES[p.tipo]||'Post')} · posição ${idx+1} no feed</h2>
+    <h2>${esc(cardTitle(p))} · ${esc(TYPES[p.tipo]||'Post')} · posição ${idx+1} no feed</h2>
     <button type="button" class="close" data-act="close" aria-label="Fechar">${I.x}</button>
   </div>
   <div class="detail-body">
@@ -550,14 +672,14 @@ function renderDetail(){
 
     <div class="appr">
       <div class="appr-status">
-        <span class="pill ${esc(p.status)}"><i></i>${STATUS[p.status]||''}</span>
+        <span class="pill ${esc(p.status)}"><i></i>${p.etapa==='aprovado' ? 'Aprovado' : p.etapa==='publicado' ? 'Publicado' : (STATUS[p.status]||'')}</span>
         ${p.decididoEm && p.status!=='pendente' && p.status!=='publicado' ? `<span class="meta">${fmtDate(p.decididoEm)}</span>`:''}
       </div>
       ${canDecide ? `
       <div class="decide">
-        <button type="button" class="btn ok" data-act="approve" ${p.status==='aprovado'?'disabled':''}>✓ Aprovar</button>
+        <button type="button" class="btn ok" data-act="approve">✓ Aprovar</button>
         <button type="button" class="btn warn" data-act="adjust">Pedir ajuste</button>
-      </div>` : `<p class="hint">Este post já está no perfil e aparece aqui só para você ver como as novas artes combinam com o feed.</p>`}
+      </div>` : `<p class="hint">${p.etapa==='aprovado' ? 'Post aprovado ✓ Ele entra no perfil na data combinada.' : 'Este post já está no perfil e aparece aqui só para ver como as novas artes combinam com o feed.'}</p>`}
 
       ${safeUrl(p.drive_url) ? `<div class="drive-post"><span>Arquivos deste post em alta qualidade</span><a class="btn small primary" href="${esc(safeUrl(p.drive_url))}" target="_blank" rel="noopener noreferrer">${'<svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" aria-hidden=\"true\"><path d=\"M12 4v11M7 10l5 5 5-5M5 20h14\"/></svg>'} Baixar</a></div>` : ''}
       <section class="fullcap">
@@ -581,6 +703,7 @@ function renderDetail(){
         <h3>Agência</h3>
         <div class="row">
           <button type="button" class="btn small" data-act="edit">Editar post</button>
+          <button type="button" class="btn small" data-act="card">Etapa e texto</button>
           <button type="button" class="btn small" data-act="up" ${idx<=0?'disabled':''}>← Mais recente</button>
           <button type="button" class="btn small" data-act="down" ${idx>=list.length-1?'disabled':''}>Mais antigo →</button>
           <button type="button" class="btn small danger" data-act="del">Excluir</button>
@@ -618,42 +741,56 @@ function renderMode(){
   document.querySelectorAll('#modeSeg button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.mode===S.mode)));
   $('#agencyBar').hidden = !editing();
   $('#sub').textContent = editing()
-    ? 'Monte o feed com as artes da semana. Depois é só mandar este link para o cliente aprovar.'
-    : 'Veja cada arte no feed do perfil, leia a legenda e aprove ou peça ajuste.';
+    ? 'Organize cada conteúdo por etapa: copy e roteiro, produção e aprovação do post. Depois é só mandar o link para o cliente.'
+    : 'Acompanhe cada conteúdo por etapa: aprove os textos, veja as artes no feed e aprove ou peça ajuste.';
 }
-function renderAll(){ renderMode(); renderProfile(); renderSummary(); renderGrid(); renderDetail(); }
+function renderAll(){ renderMode(); renderView(); renderProfile(); renderSummary(); renderBoard(); renderGrid(); renderDetail(); }
 
 /* ---------- data ---------- */
-function errMsg(e){ const m = (e && (e.message||'')) || ''; return /permission|policy|JWT|401|403/i.test(m) ? 'Você não tem permissão para esta ação.' : 'Não foi possível salvar. Confira a internet e tente de novo.'; }
+function errMsg(e){ const m = (e && (e.message||'')) || ''; return /fora_de_aprovacao/.test(m) ? 'Este conteúdo não está mais em aprovação. Recarregue a página.' : /link_invalido/.test(m) ? 'Este link não é mais válido.' : /permission|policy|JWT|401|403/i.test(m) ? 'Você não tem permissão para esta ação.' : 'Não foi possível salvar. Confira a internet e tente de novo.'; }
+async function resolveToken(){
+  if (S.token) return S.token;
+  if (!S.isOwner) return null;
+  let q = sb.from('clientes').select('token_publico,slug').eq('ativo', true).order('criado_em').limit(1);
+  if (CLIENT_SLUG) q = sb.from('clientes').select('token_publico,slug').eq('slug', CLIENT_SLUG).limit(1);
+  const { data } = await q;
+  S.token = data && data[0] ? data[0].token_publico : null;
+  return S.token;
+}
 async function loadAll(){
-  const client = await sb.from('clientes').select('id').eq('slug', CLIENT_SLUG).maybeSingle();
-  if (client.error || !client.data) throw (client.error || new Error('cliente não encontrado'));
-  S.clientId = client.data.id;
-  const [pf, ps, cs, rd] = await Promise.all([
-    sb.from('perfil').select('*').eq('cliente_id', S.clientId).maybeSingle(),
-    sb.from('posts').select('*').eq('cliente_id', S.clientId).order('ordem',{ascending:false}),
-    sb.from('comentarios').select('*').order('created_at',{ascending:true}),
-    sb.from('rodadas').select('id').eq('cliente_id', S.clientId).order('criado_em',{ascending:false}).limit(1).maybeSingle()
-  ]);
-  if (pf.error || ps.error || cs.error || rd.error) throw (pf.error || ps.error || cs.error || rd.error);
-  S.roundId = rd.data?.id || null;
-  if (pf.data) S.perfil = {...S.perfil, ...pf.data};
+  const token = await resolveToken();
+  if (!token) throw new Error('sem_link');
+  const { data, error } = await sb.rpc('portal_dados', { p_token: token });
+  if (error) throw new Error(/link_invalido/.test(error.message||'') ? 'link_invalido' : (error.message||'erro'));
+  S.clientId = data.cliente?.id || null;
+  S.roundId = data.rodada || null;
+  S.clientName = data.cliente?.nome || '';
+  if (data.perfil) S.perfil = {...S.perfil, ...data.perfil};
   const byPost = {};
-  (cs.data||[]).forEach(c => (byPost[c.post_id] ||= []).push({autor:c.autor, texto:c.texto, em:c.created_at}));
-  S.posts = (ps.data||[]).map(r => ({ id:r.id, ordem:r.ordem, tipo:r.tipo, status:r.status, legenda:r.legenda,
-    midias: Array.isArray(r.midias) ? r.midias : [], capa:r.capa, drive_url:r.drive_url, decididoEm:r.decidido_em, comentarios: byPost[r.id]||[] }));
+  (data.comentarios||[]).forEach(c => (byPost[c.post_id] ||= []).push({autor:c.autor, texto:c.texto, etapa:c.etapa, em:c.created_at}));
+  S.posts = (data.posts||[]).map(r => ({ id:r.id, ordem:r.ordem, tipo:r.tipo, status:r.status, legenda:r.legenda||'',
+    midias: Array.isArray(r.midias) ? r.midias : [], capa:r.capa, drive_url:r.drive_url, decididoEm:r.decidido_em,
+    etapa:r.etapa||'aprovacao', titulo:r.titulo||'', roteiro:r.roteiro||'', data_prevista:r.data_prevista||null, copy_status:r.copy_status||'pendente',
+    comentarios: byPost[r.id]||[] }));
+  if (S.clientName) document.title = `${S.clientName} · Aprovação`;
 }
 let reloadT = null;
 function scheduleReload(){ clearTimeout(reloadT); reloadT = setTimeout(refresh, 250); }
 async function refresh(){
-  try { await loadAll(); } catch(e){ const n=$('#notice'); n.hidden=false; n.innerHTML='<strong>Não foi possível carregar os posts.</strong> Confira a internet e recarregue a página.'; return; }
-  $('#notice').hidden = true;
+  try { await loadAll(); } catch(e){
+    const n=$('#notice'); n.hidden=false; const m = String(e && e.message || '');
+    n.innerHTML = m==='sem_link' ? '<strong>Este link está incompleto.</strong> Peça para a agência o link de aprovação da sua marca.'
+      : m==='link_invalido' ? '<strong>Este link não é mais válido.</strong> Peça para a agência um link novo.'
+      : '<strong>Não foi possível carregar os conteúdos.</strong> Confira a internet e recarregue a página.';
+    S.posts = []; renderAll(); return; }
+  $('#notice').hidden = true; S.loaded = true;
   if (S.sel && !getPost(S.sel)) S.sel = null;
   const typing = document.activeElement && document.activeElement.id === 'cmt';
-  renderMode(); renderProfile(); renderSummary(); renderGrid();
+  renderMode(); renderView(); renderProfile(); renderSummary(); renderBoard(); renderGrid();
   if (!typing) renderDetail();
+  if (!$('#cardModal').hidden && S.card && !(document.activeElement && document.activeElement.id==='ccmt')) openCard(S.card, true);
 }
-async function rpc(fn, args){ const { error } = await sb.rpc(fn, args); if (error) throw error; }
+async function rpc(fn, args){ const { error } = await sb.rpc(fn, {p_token:S.token, ...args}); if (error) throw error; }
 async function savePost(id, patch){
   const row = {};
   for (const [k,v] of Object.entries(patch)){ if (k==='decididoEm') row.decidido_em = v; else if (k!=='comentarios') row[k]=v; }
@@ -672,9 +809,22 @@ $('#grid').addEventListener('click', e => {
 });
 $('#summary').addEventListener('click', e => {
   const b = e.target.closest('[data-jump]'); if (!b) return;
-  const p = sorted().find(x=>x.status===b.dataset.jump); if (!p) return;
-  S.sel = p.id; S.slide = 0; renderGrid(); renderDetail(); if (narrow()) $('#detail').classList.add('open');
+  const fn = b.dataset.jump==='wait' ? awaiting : b.dataset.jump==='adj' ? adjusting : (p => p.etapa==='aprovado'||p.etapa==='publicado');
+  const p = [...S.posts].sort(colSort).find(fn); if (p) openItem(p);
 });
+$('#views').addEventListener('click', e => { const b = e.target.closest('[data-view]'); if (!b) return; S.view = b.dataset.view; renderView(); if (S.view==='feed'){ renderGrid(); renderDetail(); } });
+$('#board').addEventListener('click', e => {
+  if (e.target.closest('[data-newcard]')){ openCopyForm(null); return; }
+  const c = e.target.closest('[data-card]'); if (!c) return;
+  const p = getPost(c.dataset.card); if (p) openItem(p);
+});
+function openItem(p){
+  if (FEED_ETAPAS.includes(p.etapa)){
+    S.view = 'feed'; S.sel = p.id; S.slide = 0; S.capOpen = false;
+    renderView(); renderGrid(); renderDetail();
+    if (narrow()) $('#detail').classList.add('open'); else $('#feedView').scrollIntoView({behavior:'smooth', block:'start'});
+  } else openCard(p.id);
+}
 $('#showStatus').addEventListener('change', e => { S.showStatus = e.target.checked; try{localStorage.setItem('ap_showStatus', S.showStatus?'1':'0');}catch(err){} renderGrid(); });
 $('#modeSeg').addEventListener('click', e => { const b=e.target.closest('button'); if(!b) return; S.mode=b.dataset.mode; renderAll(); });
 
@@ -693,26 +843,27 @@ $('#detail').addEventListener('click', async e => {
   if (!sb) return;
   if (act==='approve'){
     b.disabled = true;
-    try { await rpc('cliente_aprovar', {p_post:p.id, p_texto:text||null}); S.draft[p.id]=''; toast('Tudo certo — post aprovado ✦'); await refresh(); }
+    try { await rpc('portal_aprovar', {p_post:p.id, p_texto:text||null}); S.draft[p.id]=''; toast('Tudo certo — post aprovado ✦'); await refresh(); }
     catch(err){ toast(errMsg(err)); b.disabled=false; }
     return;
   }
   if (act==='adjust'){
     if (!text){ const h=$('#cmtHint'); h.textContent='Descreva o ajuste no campo abaixo e clique em “Pedir ajuste” de novo.'; h.classList.add('err'); $('#cmt').focus(); return; }
     b.disabled = true;
-    try { await rpc('cliente_pedir_ajuste', {p_post:p.id, p_texto:text}); S.draft[p.id]=''; toast('Pedido recebido — vamos ajustar ✦'); await refresh(); }
+    try { await rpc('portal_pedir_ajuste', {p_post:p.id, p_texto:text}); S.draft[p.id]=''; toast('Pedido recebido — vamos ajustar ✦'); await refresh(); }
     catch(err){ toast(errMsg(err)); b.disabled=false; }
     return;
   }
   if (act==='comment'){
     if (!text){ $('#cmt').focus(); return; }
     b.disabled = true;
-    try { await rpc('cliente_comentar', {p_post:p.id, p_texto:text}); S.draft[p.id]=''; toast('Comentário enviado — obrigada pelo retorno ✦'); await refresh(); }
+    try { await rpc('portal_comentar', {p_post:p.id, p_texto:text}); S.draft[p.id]=''; toast('Comentário enviado — obrigada pelo retorno ✦'); await refresh(); }
     catch(err){ toast(errMsg(err)); b.disabled=false; }
     return;
   }
   if (!editing()) return;
   if (act==='edit'){ openPostForm(p); return; }
+  if (act==='card'){ openCard(p.id); return; }
   if (act==='up' || act==='down'){
     const list = sorted(); const i = list.findIndex(x=>x.id===p.id); const j = act==='up' ? i-1 : i+1;
     const q = list[j]; if (!q) return;
@@ -738,12 +889,13 @@ $('#detail').addEventListener('click', async e => {
 let F = null;
 function openPostForm(p){
   const isNew = !p;
-  F = { id: p?.id || null, tipo: p?.tipo || 'post', publicado: p?.status==='publicado',
+  F = { id: p?.id || null, tipo: p?.tipo || 'post', publicado: p?.etapa==='publicado', titulo: p?.titulo || '',
         items: p ? (p.amostra?.length ? p.amostra.map(a=>({sample:a})) : (p.midias||[]).map(m=>({id:m.id, tipo:m.tipo}))) : [],
         capa: p?.capa ? {id:p.capa} : null, legenda: p?.legenda || '', drive: p?.drive_url || '', orig: p || null };
   const m = $('#postModal');
   m.innerHTML = `<form class="box" id="pf" novalidate>
-    <h2>${isNew?'Novo post':'Editar post'}</h2>
+    <h2>${isNew?'Novo post':(p && (p.etapa==='copy'||p.etapa==='producao') ? 'Enviar arte' : 'Editar post')}</h2>
+    <div class="field"><label for="pTitulo">Título do card</label><input type="text" id="pTitulo" maxlength="120" placeholder="Ex.: Reel da obra" value="${esc(F.titulo)}"></div>
     <div class="field"><span>Formato</span>
       <div class="types">
         ${Object.entries(TYPES).map(([k,v])=>`<label><input type="radio" name="tipo" value="${k}" ${F.tipo===k?'checked':''}><b>${v}</b><span>${k==='post'?'1 imagem, 4:5':k==='carrossel'?'2 a 20 imagens/vídeos':'Vídeo vertical 9:16'}</span></label>`).join('')}
@@ -811,7 +963,7 @@ function openPostForm(p){
   drawThumbs();
 }
 function closeModal(m){ m.hidden = true; m.innerHTML=''; }
-document.addEventListener('keydown', e => { if (e.key==='Escape'){ ['#postModal','#profileModal','#loginModal'].forEach(s=>{ const m=$(s); if(!m.hidden) closeModal(m); }); } });
+document.addEventListener('keydown', e => { if (e.key==='Escape'){ const open = ['#postModal','#profileModal','#loginModal','#cardModal'].map(x=>$(x)).filter(m=>!m.hidden); if (open.length) closeModal(open[0]); } });
 ['#postModal','#profileModal','#loginModal'].forEach(s => $(s).addEventListener('mousedown', e => { if (e.target === $(s)) closeModal($(s)); }));
 
 async function upload(file){
@@ -824,6 +976,7 @@ async function upload(file){
 async function submitPost(){
   const err = $('#formErr'); err.classList.add('err'); err.textContent='';
   const legenda = $('#legenda').value;
+  const titulo = $('#pTitulo').value.trim();
   const driveRaw = $('#pDrive').value.trim();
   const drive_url = driveRaw ? safeUrl(driveRaw) : null;
   if (driveRaw && !drive_url){ err.textContent = 'O link do Drive precisa começar com https://'; return; }
@@ -857,10 +1010,10 @@ async function submitPost(){
     let capa = null;
     if (F.tipo==='reels' && F.capa){ capa = F.capa.file ? await upload(F.capa.file) : F.capa.id; }
     btn.textContent = 'Salvando…';
-    const doc = { tipo: F.tipo, legenda, midias, capa, drive_url };
+    const doc = { tipo: F.tipo, legenda, midias, capa, drive_url, titulo };
     if (!F.id){
       const maxOrd = Math.max(0, ...S.posts.map(p=>p.ordem||0));
-      Object.assign(doc, {ordem: maxOrd+1, status: publicado?'publicado':'pendente', cliente_id:S.clientId, rodada_id:S.roundId});
+      Object.assign(doc, {ordem: maxOrd+1, status: publicado?'publicado':'pendente', etapa: publicado?'publicado':'aprovacao', copy_status:'aprovado', cliente_id:S.clientId, rodada_id:S.roundId});
       const { data, error } = await sb.from('posts').insert(doc).select('id').single();
       if (error) throw error;
       S.sel = data.id; S.slide = 0;
@@ -868,12 +1021,16 @@ async function submitPost(){
     } else {
       const o = F.orig;
       const changed = legenda !== (o.legenda||'') || JSON.stringify(midias) !== JSON.stringify(o.midias||[]) || capa !== (o.capa||null);
-      if (publicado) doc.status = 'publicado';
-      else if (o.status === 'publicado') doc.status = 'pendente';
-      else if (changed && (o.status === 'ajuste' || o.status === 'aprovado')){
-        doc.status = 'pendente';
+      if (publicado){ doc.status = 'publicado'; doc.etapa = 'publicado'; }
+      else if (o.etapa === 'publicado'){ doc.status = 'pendente'; doc.etapa = 'aprovacao'; }
+      else if (o.etapa === 'copy' || o.etapa === 'producao'){
+        doc.status = 'pendente'; doc.etapa = 'aprovacao'; doc.copy_status = 'aprovado';
+        await sb.from('comentarios').insert({post_id: F.id, autor:'sistema', texto:'Arte enviada para aprovação.', etapa:'post'});
+      }
+      else if (changed && (o.status === 'ajuste' || o.etapa === 'aprovado')){
+        doc.status = 'pendente'; doc.etapa = 'aprovacao';
         doc.decididoEm = null;
-        await sb.from('comentarios').insert({post_id: F.id, autor:'sistema', texto:'Nova versão enviada pela agência.'});
+        await sb.from('comentarios').insert({post_id: F.id, autor:'sistema', texto:'Nova versão enviada pela agência.', etapa:'post'});
       }
       const ok = await savePost(F.id, doc);
       if (!ok){ btn.disabled=false; btn.textContent=label; return; }
@@ -882,10 +1039,11 @@ async function submitPost(){
       const old = [...(o.midias||[]).map(m=>m.id), o.capa].filter(Boolean);
       const gone = old.filter(id => !keep.has(id));
       if (gone.length) { try { await sb.storage.from(BUCKET).remove(gone); } catch(e){} }
-      toast(doc.status==='pendente' && changed ? 'Nova versão enviada para aprovação' : 'Post atualizado');
+      toast(doc.etapa==='aprovacao' && (changed || o.etapa!=='aprovacao') ? 'Arte enviada para aprovação' : 'Post atualizado');
+      if (doc.etapa==='aprovacao'){ S.view='feed'; S.sel=F.id; }
     }
     F.items.forEach(it=>it.url&&URL.revokeObjectURL(it.url));
-    closeModal($('#postModal'));
+    closeModal($('#postModal')); closeModal($('#cardModal'));
     await refresh();
   } catch(e){
     const m = String((e && (e.message || e.error)) || '');
@@ -895,6 +1053,151 @@ async function submitPost(){
       : errMsg(e);
     btn.disabled = false; btn.textContent = label;
   }
+}
+
+
+/* ---------- card de etapa (copy, roteiro, produção) ---------- */
+function stepperHTML(p){
+  const idx = ETAPAS.findIndex(e=>e.k===p.etapa);
+  return `<div class="stepper" aria-label="Etapa atual: ${esc(ETAPA_NOME[p.etapa]||'')}">${ETAPAS.map((e,i)=>`<span class="${i<idx?'done':i===idx?'on':''}">${i<idx?'✓ ':''}${esc(e.t)}</span>`).join('')}</div>`;
+}
+function openCard(id, keep){
+  const p = getPost(id); const m = $('#cardModal');
+  if (!p){ closeModal(m); return; }
+  if (FEED_ETAPAS.includes(p.etapa) && !editing()){ closeModal(m); openItem(p); return; }
+  S.card = id;
+  const inCopy = p.etapa === 'copy';
+  const thread = (p.comentarios||[]).filter(c => c.etapa === 'copy');
+  const who = c => c.autor==='agencia'?'Agência':c.autor==='cliente'?'Cliente':'Atualização';
+  const scroll = keep ? (m.querySelector('.box')?.scrollTop || 0) : 0;
+  m.innerHTML = `<div class="box cardbox" role="dialog" aria-modal="true" aria-label="${esc(cardTitle(p))}">
+    <div class="detail-head"><span class="cmeta"><span class="chip">${esc(TYPES[p.tipo]||'Post')}</span>${p.data_prevista?`<span>Publicação prevista: ${esc(fmtDay(p.data_prevista))}</span>`:''}</span>
+      <button type="button" class="close" style="display:inline-flex" data-cact="close" aria-label="Fechar">${I.x}</button></div>
+    <h2>${esc(cardTitle(p))}</h2>
+    ${stepperHTML(p)}
+    <div>${kstate(p)}</div>
+    ${p.roteiro ? `<h3 class="sec-h">${p.tipo==='reels'?'Roteiro':'Copy / texto da arte'}</h3><div class="textblock">${esc(p.roteiro)}</div>` : ''}
+    ${p.legenda ? `<div class="fullcap-head"><h3 class="sec-h">Legenda</h3><span class="hint">${p.legenda.length} / 2.200</span></div><div class="textblock">${captionHTML(p.legenda)}</div>` : ''}
+    ${!p.roteiro && !p.legenda ? '<p class="hint">O texto deste card ainda não foi escrito.</p>' : ''}
+    ${inCopy ? `<div class="decide">
+        <button type="button" class="btn ok" data-cact="approve">✓ Aprovar texto</button>
+        <button type="button" class="btn warn" data-cact="adjust">Pedir ajuste</button>
+      </div>` : p.etapa==='producao' ? '<p class="hint">Texto aprovado ✓ A arte está sendo produzida. Quando ficar pronta, ela aparece em “Post para aprovação”.</p>' : ''}
+    <div class="thread">
+      <h3>Comentários sobre o texto ${thread.length?`(${thread.filter(c=>c.autor!=='sistema').length})`:''}</h3>
+      ${thread.map(c => `<div class="msg ${esc(c.autor)}"><header><b>${who(c)}</b><span>${fmtDate(c.em)}</span></header><p>${esc(c.texto)}</p></div>`).join('') || '<p class="hint">Nenhum comentário ainda.</p>'}
+    </div>
+    <div class="compose">
+      <label for="ccmt" class="hint" id="ccmtHint">${inCopy ? 'Escreva um comentário. Para pedir ajuste, explique o que mudar.' : 'Comentário'}</label>
+      <textarea id="ccmt" placeholder="Ex.: trocar a chamada do começo, deixar mais curto…">${esc(S.draft['c_'+id]||'')}</textarea>
+      <div class="row"><button type="button" class="btn" data-cact="comment">Enviar comentário</button></div>
+    </div>
+    ${editing() ? `<div class="agency-tools">
+      <h3>Agência</h3>
+      <div class="row">
+        <button type="button" class="btn small" data-cact="edit">Editar texto</button>
+        ${p.etapa!=='publicado' ? `<button type="button" class="btn small primary" data-cact="art">${(p.midias||[]).length?'Trocar arte':'Enviar arte'}</button>` : ''}
+        <button type="button" class="btn small danger" data-cact="del">Excluir</button>
+      </div>
+      <div class="row"><label for="moveTo" class="hint">Mover para</label>
+        <select id="moveTo" style="width:auto">${ETAPAS.map(e=>`<option value="${e.k}" ${e.k===p.etapa?'selected':''}>${esc(e.t)}</option>`).join('')}</select>
+        <button type="button" class="btn small" data-cact="move">Mover</button></div>
+    </div>` : ''}
+  </div>`;
+  m.hidden = false;
+  const box = m.querySelector('.box'); if (box && scroll) box.scrollTop = scroll;
+  const ta = $('#ccmt'); ta.addEventListener('input', () => { S.draft['c_'+id] = ta.value; });
+}
+$('#cardModal').addEventListener('mousedown', e => { if (e.target === $('#cardModal')) closeModal($('#cardModal')); });
+$('#cardModal').addEventListener('click', async e => {
+  const b = e.target.closest('[data-cact]'); if (!b) return;
+  const act = b.dataset.cact; const p = getPost(S.card);
+  if (act==='close' || !p){ closeModal($('#cardModal')); return; }
+  const text = ($('#ccmt')?.value || '').trim();
+  const done = async msg => { S.draft['c_'+p.id]=''; toast(msg); await refresh(); };
+  try {
+    if (act==='approve'){ b.disabled = true; await rpc('portal_aprovar', {p_post:p.id, p_texto:text||null}); closeModal($('#cardModal')); await done('Texto aprovado ✦ Agora ele vai para produção'); return; }
+    if (act==='adjust'){
+      if (!text){ const h=$('#ccmtHint'); h.textContent='Descreva o ajuste no campo abaixo e clique em “Pedir ajuste” de novo.'; h.classList.add('err'); $('#ccmt').focus(); return; }
+      b.disabled = true; await rpc('portal_pedir_ajuste', {p_post:p.id, p_texto:text}); await done('Pedido recebido — vamos ajustar ✦'); return; }
+    if (act==='comment'){ if (!text){ $('#ccmt').focus(); return; } b.disabled = true; await rpc('portal_comentar', {p_post:p.id, p_texto:text}); await done('Comentário enviado ✦'); return; }
+  } catch(err){ toast(errMsg(err)); b.disabled = false; return; }
+  if (!editing()) return;
+  if (act==='edit'){ openCopyForm(p); return; }
+  if (act==='art'){ openPostForm(p); return; }
+  if (act==='move'){
+    const to = $('#moveTo').value; if (to === p.etapa) return;
+    if (FEED_ETAPAS.includes(to) && !(p.midias||[]).length){ toast('Envie a arte antes de mover para esta etapa.'); return; }
+    const patch = {etapa: to};
+    if (to==='copy') patch.copy_status = 'pendente';
+    if (to==='producao') patch.copy_status = 'aprovado';
+    if (to==='aprovacao') patch.status = 'pendente';
+    if (to==='aprovado'){ patch.status = 'aprovado'; patch.decididoEm = new Date().toISOString(); }
+    if (to==='publicado') patch.status = 'publicado';
+    if (await savePost(p.id, patch)){ toast(`Movido para ${ETAPA_NOME[to]}`); closeModal($('#cardModal')); await refresh(); }
+    return;
+  }
+  if (act==='del'){
+    if (b.dataset.confirm !== '1'){ b.dataset.confirm='1'; b.textContent='Confirmar exclusão'; return; }
+    const { error } = await sb.from('posts').delete().eq('id', p.id);
+    if (error){ toast(errMsg(error)); return; }
+    const paths = [...(p.midias||[]).map(x=>x.id), p.capa].filter(Boolean);
+    if (paths.length) { try { await sb.storage.from(BUCKET).remove(paths); } catch(err){} }
+    closeModal($('#cardModal')); toast('Card excluído'); await refresh();
+  }
+});
+
+function openCopyForm(p){
+  const isNew = !p; const m = $('#postModal');
+  const tipo = p?.tipo || 'post';
+  m.innerHTML = `<form class="box" id="cf" novalidate>
+    <h2>${isNew?'Novo card':'Editar texto'}</h2>
+    <div class="field"><label for="cTitulo">Título</label><input type="text" id="cTitulo" maxlength="120" placeholder="Ex.: Reel — quem está fazendo a Margô" value="${esc(p?.titulo||'')}"></div>
+    <div class="field"><span>Formato</span><div class="types">
+      ${Object.entries(TYPES).map(([k,v])=>`<label><input type="radio" name="ctipo" value="${k}" ${tipo===k?'checked':''}><b>${v}</b></label>`).join('')}
+    </div></div>
+    <div class="two">
+      <div class="field"><label for="cData">Publicação prevista</label><input type="date" id="cData" value="${esc(p?.data_prevista||'')}" style="width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:4px;padding:9px 12px;font:inherit"></div>
+      ${isNew ? `<div class="field"><label for="cEtapa">Começa em</label><select id="cEtapa">${ETAPAS.filter(e=>!FEED_ETAPAS.includes(e.k)).map(e=>`<option value="${e.k}">${esc(e.t)}</option>`).join('')}</select></div>` : '<div></div>'}
+    </div>
+    <div class="field"><label for="cRoteiro">Copy / roteiro</label>
+      <textarea id="cRoteiro" rows="7" placeholder="Texto das artes, roteiro do Reels, falas, cenas…">${esc(p?.roteiro||'')}</textarea></div>
+    <div class="field"><label for="cLegenda">Legenda</label>
+      <textarea id="cLegenda" rows="6" maxlength="2200" placeholder="Legenda do post, com hashtags">${esc(p?.legenda||'')}</textarea></div>
+    <p class="hint err" id="cErr" role="alert"></p>
+    <div class="actions"><button type="button" class="btn" data-close>Cancelar</button><button type="submit" class="btn primary" id="cSave">${isNew?'Criar card':'Salvar'}</button></div>
+  </form>`;
+  m.hidden = false; $('#cTitulo').focus();
+  const f = $('#cf');
+  f.addEventListener('click', e => { if (e.target.closest('[data-close]')) closeModal(m); });
+  f.addEventListener('submit', async e => {
+    e.preventDefault();
+    const titulo = $('#cTitulo').value.trim();
+    if (!titulo){ $('#cErr').textContent = 'Dê um título para o card.'; $('#cTitulo').focus(); return; }
+    const doc = { titulo, tipo: (f.querySelector('input[name="ctipo"]:checked')||{}).value || 'post',
+      data_prevista: $('#cData').value || null, roteiro: $('#cRoteiro').value, legenda: $('#cLegenda').value };
+    const btn = $('#cSave'); btn.disabled = true;
+    try {
+      if (isNew){
+        const etapa = $('#cEtapa').value;
+        const maxOrd = Math.max(0, ...S.posts.map(x=>x.ordem||0));
+        Object.assign(doc, { etapa, copy_status: etapa==='copy'?'pendente':'aprovado', status:'pendente', midias:[], ordem:maxOrd+1, cliente_id:S.clientId, rodada_id:S.roundId });
+        const { error } = await sb.from('posts').insert(doc);
+        if (error) throw error;
+        toast('Card criado');
+      } else {
+        const changed = doc.roteiro !== (p.roteiro||'') || doc.legenda !== (p.legenda||'');
+        if (p.etapa==='copy' && changed && p.copy_status !== 'pendente'){
+          doc.copy_status = 'pendente';
+          await sb.from('comentarios').insert({post_id:p.id, autor:'sistema', texto:'Nova versão do texto enviada pela agência.', etapa:'copy'});
+        }
+        if (!(await savePost(p.id, doc))) { btn.disabled = false; return; }
+        toast('Texto salvo');
+      }
+      closeModal(m); await refresh();
+      if (!isNew) openCard(p.id);
+    } catch(err){ $('#cErr').textContent = errMsg(err); btn.disabled = false; }
+  });
 }
 
 /* ---------- profile form ---------- */
@@ -980,7 +1283,7 @@ function openLogin(){
     btn.textContent = 'Link enviado';
   });
 }
-$('#btnLogin').addEventListener('click', openLogin);
+$('#btnLogin').addEventListener('click', async e => { if (e.currentTarget.dataset.out){ await sb.auth.signOut(); toast('Você saiu da área da agência'); } else openLogin(); });
 
 /* ---------- boot ---------- */
 document.addEventListener('error', e => {
@@ -998,7 +1301,7 @@ async function applySession(session){
   const was = S.isOwner; S.isOwner = admin;
   if (admin && !was) S.mode = 'agencia';
   if (!admin) S.mode = 'cliente';
-  $('#btnLogin').hidden = !!session;
+  const lb = $('#btnLogin'); lb.textContent = session ? 'Sair da área da agência' : 'Área da agência'; lb.dataset.out = session ? '1' : '';
   $('#btnLogout').hidden = !session;
   renderAll();
 }
@@ -1006,16 +1309,22 @@ renderAll();
 (async () => {
   const notice = $('#notice');
   if (!sb){ notice.hidden=false; notice.innerHTML='<strong>Configuração incompleta.</strong> Preencha o arquivo config.js com o endereço e a chave do Supabase.'; return; }
-  await refresh();
-  if (!narrow()){ const p = sorted().find(x=>x.status==='pendente'||x.status==='ajuste'); if (p){ S.sel = p.id; renderGrid(); renderDetail(); } }
   const { data } = await sb.auth.getSession();
   await applySession(data.session);
-  sb.auth.onAuthStateChange((_ev, session) => { if ((session?.access_token||null) !== (S.session?.access_token||null)) applySession(session); });
-  sb.channel('aprovacao')
-    .on('postgres_changes', {event:'*', schema:'public', table:'posts'}, scheduleReload)
-    .on('postgres_changes', {event:'*', schema:'public', table:'comentarios'}, scheduleReload)
-    .on('postgres_changes', {event:'*', schema:'public', table:'perfil'}, scheduleReload)
-    .subscribe();
+  await refresh();
+  if (!narrow()){ const p = sorted().find(x=>x.etapa==='aprovacao'); if (p){ S.sel = p.id; renderGrid(); renderDetail(); } }
+  sb.auth.onAuthStateChange((_ev, session) => { if ((session?.access_token||null) !== (S.session?.access_token||null)) applySession(session).then(refresh); });
+  let live = null;
+  const startLive = () => {
+    if (live || !S.isOwner) return;
+    live = sb.channel('aprovacao')
+      .on('postgres_changes', {event:'*', schema:'public', table:'posts'}, scheduleReload)
+      .on('postgres_changes', {event:'*', schema:'public', table:'comentarios'}, scheduleReload)
+      .on('postgres_changes', {event:'*', schema:'public', table:'perfil'}, scheduleReload)
+      .subscribe();
+  };
+  startLive();
+  setInterval(() => { if (!document.hidden && !S.isOwner) scheduleReload(); startLive(); }, 30000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleReload(); });
 })();
 })();
