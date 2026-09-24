@@ -277,8 +277,8 @@ textarea{resize:vertical;min-height:76px}
 .views button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--coral)}
 .views .n{font-size:11px;font-weight:700;background:var(--surface-2);border-radius:999px;padding:1px 7px;color:var(--muted)}
 .views button[aria-selected="true"] .n{background:var(--ink);color:var(--ground)}
-.board-wrap{width:min(1360px,calc(100% - 32px));margin-inline:auto}
-.board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(250px,1fr);gap:14px;overflow-x:auto;padding-bottom:12px;scroll-snap-type:x proximity;align-items:start}
+.board-wrap{width:min(1720px,calc(100% - 32px));margin-inline:auto}
+.board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(258px,1fr);gap:14px;overflow-x:auto;padding-bottom:12px;scroll-snap-type:x proximity;align-items:start}
 .col{background:var(--surface-2);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px;scroll-snap-align:start;min-height:180px;border-top:3px solid var(--col,var(--line))}
 .col[data-k="copy"]{--col:#f4c95d}.col[data-k="producao"]{--col:#d9a6cf}.col[data-k="aprovacao"]{--col:#f29ac2}.col[data-k="aprovado"]{--col:#2f7a55}.col[data-k="publicado"]{--col:#8a7d83}
 .col-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -286,18 +286,19 @@ textarea{resize:vertical;min-height:76px}
 .col-h .n{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .col-d{margin:-6px 0 0;font-size:12px;color:var(--muted)}
 .col-empty{font-size:12.5px;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:14px;text-align:center}
-.kcard{all:unset;box-sizing:border-box;cursor:pointer;display:flex;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:11px 12px;transition:border-color .15s,box-shadow .15s,transform .15s}
+.kcard{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden;transition:border-color .15s,box-shadow .15s,transform .15s,opacity .15s;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .kcard:hover{border-color:var(--muted);box-shadow:0 6px 18px -12px rgba(33,23,28,.45)}
 .kcard:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .kcard.turn{border-color:var(--coral);box-shadow:0 0 0 1px var(--coral)}
-.kcard .kthumb{flex:none;width:46px;aspect-ratio:3/4;border-radius:4px;overflow:hidden;background:var(--surface-2)}
-.kcard .kthumb img,.kcard .kthumb video,.kcard .kthumb .sample{width:100%;height:100%;object-fit:cover;display:block}
+.kcard .kthumb{display:block;width:100%;aspect-ratio:5/4;overflow:hidden;background:var(--surface-2);position:relative}
+.kcard .kthumb .kcount{position:absolute;right:8px;top:8px;background:rgba(0,0,0,.6);color:#fff;border-radius:999px;font-size:11px;font-weight:700;padding:2px 8px}
+.kcard .kthumb img,.kcard .kthumb video,.kcard .kthumb .sample{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;pointer-events:none}
 .kcard .kthumb .sample{font-size:0;padding:0}
-.kbody{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
+.kbody{display:flex;flex-direction:column;gap:7px;min-width:0;flex:1;padding:12px 14px 13px}
 .kmeta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:11.5px;color:var(--muted)}
 .chip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:11px;font-weight:600;color:var(--ink);background:var(--surface)}
-.ktitle{font-family:var(--serif);font-size:16.5px;line-height:1.15;letter-spacing:-.01em;overflow-wrap:anywhere}
-.kexc{font-size:12.5px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ktitle{font-family:var(--serif);font-size:19px;line-height:1.15;letter-spacing:-.01em;overflow-wrap:anywhere}
+.kexc{font-size:13px;line-height:1.45;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .kfoot{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap}
 .kstate{font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;display:inline-flex;align-items:center;gap:5px}
 .kstate i{width:6px;height:6px;border-radius:50%;background:currentColor}
@@ -316,7 +317,14 @@ textarea{resize:vertical;min-height:76px}
 .stepper span.on{background:var(--ink);color:var(--ground)}
 .stepper span.done{background:var(--ok-soft);color:var(--ok)}
 .cardbox .decide{position:static;box-shadow:none;border:0;padding:0;background:none}
-@media (max-width:820px){ .board{grid-auto-columns:84%} }
+.board.editable .kcard{cursor:grab}
+.kcard.dragging{opacity:.35}
+.drag-ghost{position:fixed;z-index:90;pointer-events:none;transform:rotate(2.5deg);box-shadow:0 22px 40px -12px rgba(33,23,28,.55);opacity:.96;border-color:var(--muted)!important}
+.col.drop-ok{outline:2px dashed var(--col);outline-offset:3px;background:color-mix(in srgb,var(--surface-2) 80%,var(--col))}
+.col.drop-no{outline:2px dashed var(--line);outline-offset:3px;opacity:.6}
+.board-hint{font-size:12px;color:var(--muted);margin:0 0 10px}
+body.is-dragging{cursor:grabbing}
+@media (max-width:820px){ .board{grid-auto-columns:86%} }
 
 @media (prefers-reduced-motion:reduce){ .detail{transition:none} .car{scroll-behavior:auto} }
 </style>
@@ -357,7 +365,7 @@ textarea{resize:vertical;min-height:76px}
     <button type="button" role="tab" data-view="quadro" aria-selected="true">Etapas <span class="n" id="nQuadro">0</span></button>
     <button type="button" role="tab" data-view="feed" aria-selected="false">Prévia do feed <span class="n" id="nFeed">0</span></button>
   </nav>
-  <section class="board-wrap" id="boardWrap"><div class="board" id="board"></div></section>
+  <section class="board-wrap" id="boardWrap"><p class="board-hint" id="boardHint" hidden>Arraste os cards para mudar de etapa. No celular, segure o card por um instante e arraste.</p><div class="board" id="board"></div></section>
 
   <main class="layout" id="feedView" hidden>
     <section class="phone-col">
@@ -546,8 +554,9 @@ function renderView(){
   $('.check').hidden = S.view !== 'feed';
 }
 function kthumb(p){
-  if (!(p.midias||[]).length) return '';
-  return `<span class="kthumb">${coverEl(p)}</span>`;
+  const n = (p.midias||[]).length;
+  if (!n) return '';
+  return `<span class="kthumb">${coverEl(p)}${n>1?`<span class="kcount">1/${n}</span>`:''}</span>`;
 }
 function kstate(p){
   if (p.etapa==='copy') return p.copy_status==='ajuste' ? '<span class="kstate adj"><i></i>Ajuste pedido</span>' : `<span class="kstate pend"><i></i>${editing()?'Aguardando cliente':'Aprovar texto'}</span>`;
@@ -562,6 +571,8 @@ function colSort(a,b){
 }
 function renderBoard(){
   const b = $('#board');
+  b.classList.toggle('editable', editing());
+  $('#boardHint').hidden = !editing();
   b.innerHTML = ETAPAS.map(e => {
     const items = S.posts.filter(p=>p.etapa===e.k).sort(e.k==='publicado' ? (x,y)=>colSort(y,x) : colSort);
     const cards = items.map(p => {
@@ -814,6 +825,7 @@ $('#summary').addEventListener('click', e => {
 });
 $('#views').addEventListener('click', e => { const b = e.target.closest('[data-view]'); if (!b) return; S.view = b.dataset.view; renderView(); if (S.view==='feed'){ renderGrid(); renderDetail(); } });
 $('#board').addEventListener('click', e => {
+  if (DRAG.suppressClick){ e.preventDefault(); return; }
   if (e.target.closest('[data-newcard]')){ openCopyForm(null); return; }
   const c = e.target.closest('[data-card]'); if (!c) return;
   const p = getPost(c.dataset.card); if (p) openItem(p);
@@ -1126,15 +1138,8 @@ $('#cardModal').addEventListener('click', async e => {
   if (act==='edit'){ openCopyForm(p); return; }
   if (act==='art'){ openPostForm(p); return; }
   if (act==='move'){
-    const to = $('#moveTo').value; if (to === p.etapa) return;
-    if (FEED_ETAPAS.includes(to) && !(p.midias||[]).length){ toast('Envie a arte antes de mover para esta etapa.'); return; }
-    const patch = {etapa: to};
-    if (to==='copy') patch.copy_status = 'pendente';
-    if (to==='producao') patch.copy_status = 'aprovado';
-    if (to==='aprovacao') patch.status = 'pendente';
-    if (to==='aprovado'){ patch.status = 'aprovado'; patch.decididoEm = new Date().toISOString(); }
-    if (to==='publicado') patch.status = 'publicado';
-    if (await savePost(p.id, patch)){ toast(`Movido para ${ETAPA_NOME[to]}`); closeModal($('#cardModal')); await refresh(); }
+    const to = $('#moveTo').value;
+    if (await moveCard(p, to)) closeModal($('#cardModal'));
     return;
   }
   if (act==='del'){
@@ -1199,6 +1204,88 @@ function openCopyForm(p){
     } catch(err){ $('#cErr').textContent = errMsg(err); btn.disabled = false; }
   });
 }
+
+
+/* ---------- mover cards entre etapas (arrastar) ---------- */
+function canMoveTo(p, to){ return to !== p.etapa && (!FEED_ETAPAS.includes(to) || (p.midias||[]).length > 0); }
+async function moveCard(p, to){
+  if (!p || to === p.etapa) return false;
+  if (FEED_ETAPAS.includes(to) && !(p.midias||[]).length){ toast('Envie a arte antes de mover para esta etapa.'); return false; }
+  const patch = {etapa: to};
+  if (to==='copy') patch.copy_status = 'pendente';
+  if (to==='producao') patch.copy_status = 'aprovado';
+  if (to==='aprovacao') patch.status = 'pendente';
+  if (to==='aprovado'){ patch.status = 'aprovado'; patch.decididoEm = new Date().toISOString(); }
+  if (to==='publicado') patch.status = 'publicado';
+  const before = p.etapa; p.etapa = to; Object.assign(p, patch); renderBoard(); renderSummary();
+  if (await savePost(p.id, patch)){ toast(`Movido para ${ETAPA_NOME[to]}`); await refresh(); return true; }
+  p.etapa = before; await refresh(); return false;
+}
+const DRAG = { card:null, post:null, ghost:null, startX:0, startY:0, dx:0, dy:0, active:false, timer:null, pointer:null, over:null, suppressClick:false, scrollRaf:null, lastX:0 };
+function dragColAt(x, y){ const el = document.elementFromPoint(x, y); return el && el.closest ? el.closest('.col') : null; }
+function dragStart(){
+  const r = DRAG.card.getBoundingClientRect();
+  DRAG.dx = DRAG.startX - r.left; DRAG.dy = DRAG.startY - r.top;
+  const g = DRAG.card.cloneNode(true); g.classList.add('drag-ghost'); g.style.width = r.width + 'px';
+  g.style.left = r.left + 'px'; g.style.top = r.top + 'px';
+  document.body.appendChild(g); DRAG.ghost = g; DRAG.active = true;
+  DRAG.card.classList.add('dragging'); document.body.classList.add('is-dragging');
+  document.querySelectorAll('#board .col').forEach(c => { if (c.dataset.k !== DRAG.post.etapa && !canMoveTo(DRAG.post, c.dataset.k)) c.classList.add('drop-no'); });
+  if (navigator.vibrate) { try { navigator.vibrate(12); } catch(e){} }
+  autoScroll();
+}
+function dragMove(x, y){
+  DRAG.lastX = x;
+  DRAG.ghost.style.left = (x - DRAG.dx) + 'px'; DRAG.ghost.style.top = (y - DRAG.dy) + 'px';
+  const col = dragColAt(x, y);
+  if (col !== DRAG.over){
+    if (DRAG.over) DRAG.over.classList.remove('drop-ok');
+    DRAG.over = col;
+    if (col && col.dataset.k !== DRAG.post.etapa && canMoveTo(DRAG.post, col.dataset.k)) col.classList.add('drop-ok');
+  }
+}
+function autoScroll(){
+  if (!DRAG.active) return;
+  const b = $('#board'); const r = b.getBoundingClientRect(); const edge = 70;
+  if (DRAG.lastX > r.right - edge) b.scrollLeft += 14; else if (DRAG.lastX && DRAG.lastX < r.left + edge) b.scrollLeft -= 14;
+  DRAG.scrollRaf = requestAnimationFrame(autoScroll);
+}
+function dragCleanup(){
+  clearTimeout(DRAG.timer); cancelAnimationFrame(DRAG.scrollRaf);
+  if (DRAG.ghost) DRAG.ghost.remove();
+  if (DRAG.card) DRAG.card.classList.remove('dragging');
+  document.querySelectorAll('#board .col').forEach(c => c.classList.remove('drop-ok','drop-no'));
+  document.body.classList.remove('is-dragging');
+  Object.assign(DRAG, { card:null, post:null, ghost:null, active:false, timer:null, pointer:null, over:null, lastX:0 });
+}
+$('#board').addEventListener('pointerdown', e => {
+  if (!editing() || e.button > 0) return;
+  const card = e.target.closest('.kcard'); if (!card) return;
+  const p = getPost(card.dataset.card); if (!p) return;
+  Object.assign(DRAG, { card, post:p, startX:e.clientX, startY:e.clientY, pointer:e.pointerId, lastX:0 });
+  if (e.pointerType !== 'mouse') DRAG.timer = setTimeout(() => { if (DRAG.card && !DRAG.active) dragStart(); }, 320);
+});
+window.addEventListener('pointermove', e => {
+  if (!DRAG.card || e.pointerId !== DRAG.pointer) return;
+  if (!DRAG.active){
+    const far = Math.hypot(e.clientX - DRAG.startX, e.clientY - DRAG.startY) > 6;
+    if (!far) return;
+    if (e.pointerType === 'mouse') dragStart(); else { dragCleanup(); return; }
+  }
+  e.preventDefault(); dragMove(e.clientX, e.clientY);
+}, {passive:false});
+document.addEventListener('touchmove', e => { if (DRAG.active) e.preventDefault(); }, {passive:false});
+window.addEventListener('pointerup', async e => {
+  if (!DRAG.card || e.pointerId !== DRAG.pointer) return;
+  if (!DRAG.active){ dragCleanup(); return; }
+  const col = dragColAt(e.clientX, e.clientY); const p = DRAG.post;
+  DRAG.suppressClick = true; setTimeout(() => { DRAG.suppressClick = false; }, 60);
+  dragCleanup();
+  if (col && col.dataset.k !== p.etapa) await moveCard(p, col.dataset.k);
+});
+window.addEventListener('pointercancel', () => { if (DRAG.card) dragCleanup(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && DRAG.active){ dragCleanup(); } });
+$('#board').addEventListener('contextmenu', e => { if (editing() && e.target.closest('.kcard')) e.preventDefault(); });
 
 /* ---------- profile form ---------- */
 function openProfileForm(){
