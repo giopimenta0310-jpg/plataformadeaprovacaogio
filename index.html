@@ -488,9 +488,15 @@ const I = {
 function toast(msg){ const t=$('#toast'); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true,2600); }
 function fmtDate(ts){ try { return new Date(ts).toLocaleString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}); } catch(e){ return ''; } }
 function sampleHTML(s, cls='sample'){ return `<div class="${cls}" style="background:linear-gradient(150deg,${esc(s.c1)},${esc(s.c2)})"><span>${esc(s.t||'')}</span></div>`; }
-function mediaList(p){ const m = (p.midias||[]).map(x=>({...x})); return m.length ? m : [{sample:{c1:'#8a7a70',c2:'#4f423b',t:'Arte ainda não enviada'}}]; }
+function mediaList(p){
+  const m = (p.midias||[]).map(x=>({...x}));
+  if (m.length) return m;
+  const external = safeUrl(p.instagram_thumbnail_url) || safeUrl(p.instagram_media_url);
+  return external ? [{url:external,tipo:p.tipo==='reels'?'video-cover':'image'}] : [{sample:{c1:'#8a7a70',c2:'#4f423b',t:'Arte ainda não enviada'}}];
+}
 function mediaEl(m, ctx){
   if (m.sample) return sampleHTML(m.sample);
+  if (m.url) return `<img src="${esc(safeUrl(m.url))}" alt="Publicação sincronizada do Instagram" loading="lazy" referrerpolicy="no-referrer">`;
   if (m.tipo === 'video') return ctx === 'tile'
     ? `<video src="${blob(m.id)}#t=0.1" muted playsinline preload="metadata"></video>`
     : `<video src="${blob(m.id)}" controls playsinline preload="metadata"></video>`;
@@ -650,6 +656,7 @@ function renderDetail(){
     </article>`;
   const m0 = media[0];
   const reelMedia = !m0 ? '' : m0.sample ? sampleHTML(m0.sample)
+    : m0.url ? `<img src="${esc(safeUrl(m0.url))}" alt="Publicação sincronizada do Instagram" referrerpolicy="no-referrer">`
     : m0.tipo === 'video' ? `<video id="reelVid" src="${blob(m0.id)}" ${p.capa?`poster="${blob(p.capa)}"`:''} muted loop playsinline preload="metadata"></video>`
     : `<img src="${blob(m0.id)}" alt="">`;
   const reelHTML = `<div class="reel-screen">
@@ -686,6 +693,7 @@ function renderDetail(){
         <span class="pill ${esc(p.status)}"><i></i>${p.etapa==='aprovado' ? 'Aprovado' : p.etapa==='publicado' ? 'Publicado' : (STATUS[p.status]||'')}</span>
         ${p.decididoEm && p.status!=='pendente' && p.status!=='publicado' ? `<span class="meta">${fmtDate(p.decididoEm)}</span>`:''}
       </div>
+      ${p.etapa==='publicado' && safeUrl(p.instagram_permalink) ? `<div class="drive-post"><span>${p.publicado_em ? `Publicado em ${fmtDate(p.publicado_em)}` : 'Publicado no Instagram'}${p.origem==='instagram' ? ' · sincronizado automaticamente' : ''}</span><a class="btn small" href="${esc(safeUrl(p.instagram_permalink))}" target="_blank" rel="noopener noreferrer">Ver no Instagram</a></div>` : ''}
       ${canDecide ? `
       <div class="decide">
         <button type="button" class="btn ok" data-act="approve">✓ Aprovar</button>
@@ -782,6 +790,9 @@ async function loadAll(){
   S.posts = (data.posts||[]).map(r => ({ id:r.id, ordem:r.ordem, tipo:r.tipo, status:r.status, legenda:r.legenda||'',
     midias: Array.isArray(r.midias) ? r.midias : [], capa:r.capa, drive_url:r.drive_url, decididoEm:r.decidido_em,
     etapa:r.etapa||'aprovacao', titulo:r.titulo||'', roteiro:r.roteiro||'', data_prevista:r.data_prevista||null, copy_status:r.copy_status||'pendente',
+    instagram_media_id:r.instagram_media_id||null, instagram_permalink:r.instagram_permalink||'',
+    instagram_media_url:r.instagram_media_url||'', instagram_thumbnail_url:r.instagram_thumbnail_url||'',
+    publicado_em:r.publicado_em||null, origem:r.origem||'plataforma', correspondencia_instagram:r.correspondencia_instagram||null,
     comentarios: byPost[r.id]||[] }));
   if (S.clientName) document.title = `${S.clientName} · Aprovação`;
 }

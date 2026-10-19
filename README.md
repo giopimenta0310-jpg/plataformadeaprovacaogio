@@ -42,6 +42,14 @@ Visual com a identidade do studio Gio.
 
 A chave em `config.js` é a **chave pública** (publishable). Ela pode ficar no código. Quem protege os dados são as regras do banco (RLS).
 
+## Instagram da Margô
+
+A integração oficial para manter o grid alinhado ao Instagram está preparada em
+`supabase/functions/sync-instagram/` e `supabase/migrations/002_instagram_sync.sql`.
+Ela preserva a diferença entre conteúdo aprovado e efetivamente publicado, importa
+posts externos e só faz correspondência automática quando há confiança suficiente.
+Consulte `INSTAGRAM_SYNC.md` antes de configurar a Meta ou aplicar a migração.
+
 ## Supabase
 
 Projeto **Plataforma de aprovação** (`vbnsjwbqwldbvzuzmbbp`), região São Paulo.
