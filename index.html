@@ -272,15 +272,15 @@ textarea{resize:vertical;min-height:76px}
 @media (max-width:480px){ .types{grid-template-columns:1fr} .two{grid-template-columns:1fr} .avatar{width:66px;height:66px} .ph-head{gap:12px} }
 
 /* ---------- Quadro (etapas) ---------- */
-.views{width:min(1360px,calc(100% - 32px));margin-inline:auto;display:flex;gap:4px;border-bottom:1px solid var(--line)}
-.views button{border:0;background:none;padding:10px 14px;font-size:14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;display:inline-flex;gap:8px;align-items:center}
+.views{width:min(1360px,calc(100% - 32px));margin-inline:auto;display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.views button{white-space:nowrap;flex:none;border:0;background:none;padding:10px 14px;font-size:14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;display:inline-flex;gap:8px;align-items:center}
 .views button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--coral)}
 .views .n{font-size:11px;font-weight:700;background:var(--surface-2);border-radius:999px;padding:1px 7px;color:var(--muted)}
 .views button[aria-selected="true"] .n{background:var(--ink);color:var(--ground)}
 .board-wrap{width:min(1720px,calc(100% - 32px));margin-inline:auto}
 .board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(258px,1fr);gap:14px;overflow-x:auto;padding-bottom:12px;scroll-snap-type:x proximity;align-items:start}
 .col{background:var(--surface-2);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px;scroll-snap-align:start;min-height:180px;border-top:3px solid var(--col,var(--line))}
-.col[data-k="copy"]{--col:#f4c95d}.col[data-k="producao"]{--col:#d9a6cf}.col[data-k="aprovacao"]{--col:#f29ac2}.col[data-k="aprovado"]{--col:#2f7a55}.col[data-k="publicado"]{--col:#8a7d83}
+[data-k="copy"]{--col:#f4c95d}[data-k="producao"]{--col:#d9a6cf}[data-k="aprovacao"]{--col:#f29ac2}[data-k="aprovado"]{--col:#2f7a55}[data-k="agendado"]{--col:#3f6fc4}[data-k="publicado"]{--col:#8a7d83}
 .col-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .col-h h3{margin:0;font-size:14px;font-weight:700}
 .col-h .n{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -326,6 +326,66 @@ textarea{resize:vertical;min-height:76px}
 body.is-dragging{cursor:grabbing}
 @media (max-width:820px){ .board{grid-auto-columns:86%} }
 
+/* redes */
+.plats{display:inline-flex;gap:3px;align-items:center;color:var(--muted)}
+.plats svg{display:block}
+.pubinfo{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:13px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:10px 14px}
+.pubinfo b{color:var(--ink);font-weight:600}
+.pubinfo .plats{color:var(--ink);gap:8px}
+.pubinfo .plats span{display:inline-flex;gap:5px;align-items:center}
+.netpick{display:flex;gap:8px;flex-wrap:wrap}
+.netpick label{display:inline-flex;gap:7px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600;cursor:pointer;background:var(--surface)}
+.netpick label:has(input:checked){border-color:var(--ink);background:var(--surface-2)}
+.netpick input{accent-color:var(--coral);margin:0}
+.dt{display:grid;grid-template-columns:1fr 130px;gap:8px}
+.dt input{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:4px;padding:9px 12px;font:inherit}
+
+/* calendário */
+.cal-wrap{width:min(1360px,calc(100% - 32px));margin-inline:auto;display:flex;flex-direction:column;gap:12px}
+.cal-bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.cal-nav{display:flex;align-items:center;gap:6px}
+.cal-nav h2{font-family:var(--serif);font-weight:400;font-size:clamp(22px,2.6vw,30px);margin:0 6px;letter-spacing:-.02em;min-width:10ch}
+.iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;width:34px;height:34px;display:inline-grid;place-items:center;color:var(--ink)}
+.iconbtn:hover{border-color:var(--muted)}
+.todaybtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:600}
+.fseg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.fseg button{border:0;background:transparent;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:650;color:var(--muted);display:inline-flex;gap:6px;align-items:center}
+.fseg button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+.cal-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted)}
+.cal-legend span{display:inline-flex;gap:6px;align-items:center}
+.cal-legend i{width:9px;height:9px;border-radius:2px;background:var(--col);display:block}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.cal-dow{background:var(--surface-2);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:8px 10px}
+.cal-day{background:var(--surface);min-height:132px;padding:6px;display:flex;flex-direction:column;gap:5px;position:relative;min-width:0}
+.cal-day.out{background:var(--surface-2)}
+.cal-day.out .cal-num{opacity:.45}
+.cal-num{font-size:12px;font-weight:700;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-variant-numeric:tabular-nums}
+.cal-day.today .cal-num{background:var(--coral);color:#fff}
+.cal-add{position:absolute;right:6px;top:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;width:24px;height:24px;font-size:15px;line-height:1;color:var(--muted);opacity:0;transition:opacity .15s}
+.cal-day:hover .cal-add,.cal-add:focus-visible{opacity:1}
+.cal-day.drop-ok{box-shadow:inset 0 0 0 2px var(--coral)}
+.cal-item{box-sizing:border-box;cursor:pointer;color:var(--ink);text-align:left;display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-left:3px solid var(--col);border-radius:5px;padding:4px;background:var(--surface);font-size:11.5px;line-height:1.25;min-width:0}
+.cal-item:hover{border-color:var(--muted);border-left-color:var(--col)}
+.cal-item:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.cal-item.turn{box-shadow:0 0 0 1px var(--coral)}
+.cal-item[draggable="true"]{cursor:grab}
+.cal-item .ct{width:28px;height:35px;flex:none;border-radius:3px;overflow:hidden;background:var(--surface-2)}
+.cal-item .ct img,.cal-item .ct video,.cal-item .ct .sample{width:100%;height:100%;object-fit:cover;display:block;font-size:0;padding:0;pointer-events:none}
+.cal-item .cx{min-width:0;display:flex;flex-direction:column;gap:2px}
+.cal-item .cx b{font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.cal-item small{display:flex;gap:5px;align-items:center;color:var(--muted);font-size:10.5px;flex-wrap:wrap}
+.cal-more{font-size:11px;color:var(--muted);padding:0 4px}
+.cal-undated{display:flex;flex-direction:column;gap:8px}
+.cal-undated h3{margin:0;font-size:13px;font-weight:700}
+.cal-undated .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.cal-agenda{display:flex;flex-direction:column;gap:14px}
+.cal-agenda .aday{display:flex;flex-direction:column;gap:6px}
+.cal-agenda .aday h3{margin:0;font-size:13px;font-weight:700}
+.cal-agenda .aday.today h3{color:var(--coral)}
+.cal-agenda .cal-item{font-size:13px;padding:6px}
+.cal-agenda .cal-item .ct{width:40px;height:50px}
+.cal-empty{font-size:13px;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:16px;text-align:center}
+
 @media (prefers-reduced-motion:reduce){ .detail{transition:none} .car{scroll-behavior:auto} }
 </style>
 <script src="supabase.js"></script>
@@ -363,8 +423,24 @@ body.is-dragging{cursor:grabbing}
   <div class="notice" id="notice" hidden></div>
   <nav class="views" id="views" role="tablist" aria-label="Visualização">
     <button type="button" role="tab" data-view="quadro" aria-selected="true">Etapas <span class="n" id="nQuadro">0</span></button>
+    <button type="button" role="tab" data-view="calendario" aria-selected="false">Calendário</button>
     <button type="button" role="tab" data-view="feed" aria-selected="false">Prévia do feed <span class="n" id="nFeed">0</span></button>
   </nav>
+  <section class="cal-wrap" id="calWrap" hidden>
+    <div class="cal-bar">
+      <div class="cal-nav">
+        <button type="button" class="iconbtn" data-cal="prev" aria-label="Mês anterior"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <h2 id="calTitle"></h2>
+        <button type="button" class="iconbtn" data-cal="next" aria-label="Próximo mês"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M9 5l7 7-7 7"/></svg></button>
+        <button type="button" class="todaybtn" data-cal="today">Hoje</button>
+      </div>
+      <div class="fseg" id="calPlat" role="group" aria-label="Filtrar por rede"></div>
+    </div>
+    <div class="cal-legend" id="calLegend"></div>
+    <p class="board-hint" id="calHint" hidden>Arraste um post para outro dia para mudar a data. Use o + de cada dia para criar um card já com a data.</p>
+    <div id="calBody"></div>
+    <div class="cal-undated" id="calUndated"></div>
+  </section>
   <section class="board-wrap" id="boardWrap"><p class="board-hint" id="boardHint" hidden>Arraste os cards para mudar de etapa. No celular, segure o card por um instante e arraste.</p><div class="board" id="board"></div></section>
 
   <main class="layout" id="feedView" hidden>
@@ -426,6 +502,7 @@ const ETAPAS = [
   {k:'producao', t:'Em produção', d:'Texto aprovado, arte sendo criada'},
   {k:'aprovacao', t:'Post para aprovação', d:'Veja no feed e aprove'},
   {k:'aprovado', t:'Aprovado', d:'Pronto para publicar'},
+  {k:'agendado', t:'Agendado', d:'Com dia e horário para sair'},
   {k:'publicado', t:'Publicado', d:'Já está no perfil'}
 ];
 const ETAPA_NOME = Object.fromEntries(ETAPAS.map(e=>[e.k,e.t]));
@@ -461,13 +538,29 @@ const blob = path => sb ? sb.storage.from(BUCKET).getPublicUrl(path).data.public
 const STATUS = {pendente:'Aguardando aprovação', aprovado:'Aprovado', ajuste:'Ajuste pedido', publicado:'Já publicado'};
 const SHORT = {pendente:'Pendente', aprovado:'Aprovado', ajuste:'Ajuste'};
 const TYPES = {post:'Post', carrossel:'Carrossel', reels:'Reels'};
+const PLAT = {
+  instagram:{n:'Instagram', i:s=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg>`},
+  tiktok:{n:'TikTok', i:s=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14.5 3h3c.2 1.9 1.5 3.4 3.5 3.6v3.1c-1.3 0-2.5-.4-3.5-1v6.4A6.1 6.1 0 1 1 11.4 9v3.2a2.9 2.9 0 1 0 3.1 2.9z"/></svg>`}
+};
+function plats(p){ const l = (p.plataformas && p.plataformas.length) ? p.plataformas : ['instagram']; return l.filter(k=>PLAT[k]); }
+function platIcons(p, s=12){ return `<span class="plats" title="${esc(plats(p).map(k=>PLAT[k].n).join(', '))}">${plats(p).map(k=>PLAT[k].i(s)).join('')}</span>`; }
+function fmtHora(h){ if (!h) return ''; const [hh,mm] = String(h).split(':'); return mm && mm !== '00' ? `${+hh}h${mm}` : `${+hh}h`; }
+function isoDay(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function netPickHTML(name, sel){ return `<div class="netpick">${Object.entries(PLAT).map(([k,v])=>`<label><input type="checkbox" name="${name}" value="${k}" ${sel.includes(k)?'checked':''}>${v.i(15)} ${v.n}</label>`).join('')}</div>`; }
+function readNets(form, name){ const v = [...form.querySelectorAll(`input[name="${name}"]:checked`)].map(i=>i.value); return v.length ? v : null; }
+function pubInfoHTML(p){
+  const when = p.data_prevista ? `<span>Publicação: <b>${esc(fmtDay(p.data_prevista))}${p.hora_prevista?` · ${esc(fmtHora(p.hora_prevista))}`:''}</b></span>` : '<span>Publicação: <b>sem data</b></span>';
+  return `<div class="pubinfo">${when}<span class="plats">${plats(p).map(k=>`<span>${PLAT[k].i(14)} ${PLAT[k].n}</span>`).join('')}</span></div>`;
+}
 
 const S = {
   posts: [], perfil: {nome:'', usuario:'perfil', bio:'', seguidores:'0', seguindo:'0', avatar:null},
   sel: null, slide: 0, mode: 'cliente', isOwner: false, session: null, clientId: null, roundId: null, token: URL_TOKEN, view: 'quadro', loaded: false,
+  calMonth: (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })(), calPlat: 'todas',
   showStatus: true, capOpen: false, busy: false, draft: {}, reelView: 'reels', ar: {}
 };
 try { const v = localStorage.getItem('ap_showStatus'); if (v !== null) S.showStatus = v === '1'; } catch(e){}
+try { const v = localStorage.getItem('ap_view'); if (['quadro','calendario','feed'].includes(v)) S.view = v; } catch(e){}
 $('#showStatus').checked = S.showStatus;
 
 /* ---------- icons ---------- */
@@ -502,7 +595,7 @@ function coverEl(p){
   return m ? mediaEl(m,'tile') : '<div class="sample" style="background:var(--phone-line)"></div>';
 }
 function captionHTML(t){ return esc(t).replace(/(^|\s)([#@][\p{L}\p{N}_.]+)/gu, '$1<span class="ht">$2</span>'); }
-const FEED_ETAPAS = ['aprovacao','aprovado','publicado'];
+const FEED_ETAPAS = ['aprovacao','aprovado','agendado','publicado'];
 function feedPosts(){ return S.posts.filter(p => FEED_ETAPAS.includes(p.etapa)); }
 function sorted(){ return feedPosts().sort((a,b)=>(b.ordem||0)-(a.ordem||0)); }
 function awaiting(p){ return (p.etapa==='copy' && p.copy_status==='pendente') || (p.etapa==='aprovacao' && p.status==='pendente'); }
@@ -528,7 +621,7 @@ function renderProfile(){
 function renderSummary(){
   const all = S.posts;
   const wait = all.filter(awaiting).length, adj = all.filter(adjusting).length;
-  const done = all.filter(p=>p.etapa==='aprovado'||p.etapa==='publicado').length;
+  const done = all.filter(p=>['aprovado','agendado','publicado'].includes(p.etapa)).length;
   const total = all.length;
   $('#summary').innerHTML = total ? [
     `<button type="button" class="pill pendente" data-jump="wait" ${wait?'':'disabled'}><i></i>${wait} ${editing()?'aguardando o cliente':'esperando você'}</button>`,
@@ -551,7 +644,9 @@ function renderView(){
   document.querySelectorAll('#views button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view===S.view)));
   $('#boardWrap').hidden = S.view !== 'quadro';
   $('#feedView').hidden = S.view !== 'feed';
+  $('#calWrap').hidden = S.view !== 'calendario';
   $('.check').hidden = S.view !== 'feed';
+  try { localStorage.setItem('ap_view', S.view); } catch(e){}
 }
 function kthumb(p){
   const n = (p.midias||[]).length;
@@ -563,6 +658,7 @@ function kstate(p){
   if (p.etapa==='producao') return '<span class="kstate muted"><i></i>Em produção</span>';
   if (p.etapa==='aprovacao') return p.status==='ajuste' ? '<span class="kstate adj"><i></i>Ajuste pedido</span>' : `<span class="kstate pend"><i></i>${editing()?'Aguardando cliente':'Aprovar post'}</span>`;
   if (p.etapa==='aprovado') return '<span class="kstate ok"><i></i>Aprovado</span>';
+  if (p.etapa==='agendado') return `<span class="kstate ok"><i></i>Agendado${p.data_prevista?` · ${esc(fmtDay(p.data_prevista))}${p.hora_prevista?' '+esc(fmtHora(p.hora_prevista)):''}`:''}</span>`;
   return '<span class="kstate muted"><i></i>Publicado</span>';
 }
 function colSort(a,b){
@@ -581,7 +677,7 @@ function renderBoard(){
       return `<button type="button" class="kcard${!editing() && awaiting(p) ? ' turn' : ''}" data-card="${esc(p.id)}">
         ${kthumb(p)}
         <span class="kbody">
-          <span class="kmeta"><span class="chip">${esc(TYPES[p.tipo]||'Post')}</span>${p.data_prevista?`<span>${esc(fmtDay(p.data_prevista))}</span>`:''}</span>
+          <span class="kmeta"><span class="chip">${esc(TYPES[p.tipo]||'Post')}</span>${platIcons(p)}${p.data_prevista?`<span>${esc(fmtDay(p.data_prevista))}${p.hora_prevista?' · '+esc(fmtHora(p.hora_prevista)):''}</span>`:''}</span>
           <span class="ktitle">${esc(cardTitle(p))}</span>
           ${exc ? `<span class="kexc">${esc(exc)}</span>` : ''}
           <span class="kfoot">${kstate(p)}${ncom?`<span class="kcom" title="Comentários">💬 ${ncom}</span>`:''}</span>
@@ -597,6 +693,105 @@ function renderBoard(){
     </section>`;
   }).join('');
 }
+/* ---------- calendário ---------- */
+const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const DOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+function calPosts(){ return S.posts.filter(p => S.calPlat === 'todas' || plats(p).includes(S.calPlat)); }
+function calSort(a,b){ const ha = a.hora_prevista || '99', hb = b.hora_prevista || '99'; return ha < hb ? -1 : ha > hb ? 1 : (a.ordem||0)-(b.ordem||0); }
+function calItem(p){
+  const thumb = (p.midias||[]).length ? `<span class="ct">${coverEl(p)}</span>` : '';
+  const meta = [p.hora_prevista ? esc(fmtHora(p.hora_prevista)) : '', esc(TYPES[p.tipo]||'Post')].filter(Boolean).join(' · ');
+  return `<div role="button" tabindex="0" class="cal-item${!editing() && awaiting(p) ? ' turn' : ''}" data-k="${esc(p.etapa)}" data-calitem="${esc(p.id)}" ${editing()?'draggable="true"':''} title="${esc(cardTitle(p))} — ${esc(ETAPA_NOME[p.etapa]||'')}">
+    ${thumb}<span class="cx"><b>${esc(cardTitle(p))}</b><small>${platIcons(p,11)}${meta}</small></span></div>`;
+}
+function renderCalendar(){
+  if (!$('#calWrap')) return;
+  const m0 = S.calMonth, y = m0.getFullYear(), mo = m0.getMonth();
+  $('#calTitle').textContent = `${MESES[mo][0].toUpperCase()+MESES[mo].slice(1)} ${y}`;
+  const used = new Set(S.posts.flatMap(plats));
+  const opts = [['todas','Todas']].concat(Object.keys(PLAT).filter(k=>used.has(k) || k==='instagram').map(k=>[k,PLAT[k].n]));
+  if (S.calPlat !== 'todas' && !opts.some(o=>o[0]===S.calPlat)) S.calPlat = 'todas';
+  $('#calPlat').innerHTML = opts.map(([k,n])=>`<button type="button" data-calplat="${k}" aria-pressed="${S.calPlat===k}">${PLAT[k]?PLAT[k].i(13):''}${esc(n)}</button>`).join('');
+  $('#calLegend').innerHTML = ETAPAS.map(e=>`<span data-k="${e.k}"><i></i>${esc(e.t)}</span>`).join('');
+  $('#calHint').hidden = !editing() || narrow();
+  const list = calPosts();
+  const byDay = {};
+  list.filter(p=>p.data_prevista).forEach(p => (byDay[p.data_prevista] ||= []).push(p));
+  Object.values(byDay).forEach(a => a.sort(calSort));
+  const today = isoDay(new Date());
+  const body = $('#calBody');
+  if (narrow()){
+    const days = Object.keys(byDay).filter(d => d.slice(0,7) === `${y}-${String(mo+1).padStart(2,'0')}`).sort();
+    body.innerHTML = days.length ? `<div class="cal-agenda">${days.map(d => `<div class="aday${d===today?' today':''}"><h3>${esc((t => t[0].toUpperCase()+t.slice(1))(new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'})))}</h3>${byDay[d].map(calItem).join('')}</div>`).join('')}</div>`
+      : '<div class="cal-empty">Nenhum conteúdo com data neste mês.</div>';
+  } else {
+    const start = new Date(y, mo, 1 - new Date(y, mo, 1).getDay());
+    const last = new Date(y, mo + 1, 0);
+    const end = new Date(y, mo, last.getDate() + (6 - last.getDay()));
+    let cells = '';
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)){
+      const k = isoDay(d), items = byDay[k] || [];
+      const shown = items.slice(0, 4), more = items.length - shown.length;
+      cells += `<div class="cal-day${d.getMonth()!==mo?' out':''}${k===today?' today':''}" data-day="${k}">
+        <span class="cal-num">${d.getDate()}</span>
+        ${editing() ? `<button type="button" class="cal-add" data-caladd="${k}" aria-label="Novo card em ${esc(fmtDay(k))}">+</button>` : ''}
+        ${shown.map(calItem).join('')}
+        ${more > 0 ? `<button type="button" class="linkbtn cal-more" data-calday="${k}">+${more} ${more===1?'outro':'outros'}</button>` : ''}
+      </div>`;
+    }
+    body.innerHTML = `<div class="cal-grid">${DOW.map(d=>`<div class="cal-dow">${d}</div>`).join('')}${cells}</div>`;
+  }
+  const und = list.filter(p => !p.data_prevista && p.etapa !== 'publicado').sort((a,b)=>(a.ordem||0)-(b.ordem||0));
+  $('#calUndated').innerHTML = und.length ? `<h3>Sem data definida (${und.length})</h3><div class="list">${und.map(calItem).join('')}</div>` : '';
+}
+$('#calWrap').addEventListener('click', e => {
+  const nav = e.target.closest('[data-cal]');
+  if (nav){
+    const a = nav.dataset.cal, m = S.calMonth;
+    S.calMonth = a === 'today' ? (d => new Date(d.getFullYear(), d.getMonth(), 1))(new Date()) : new Date(m.getFullYear(), m.getMonth() + (a === 'next' ? 1 : -1), 1);
+    renderCalendar(); return;
+  }
+  const pl = e.target.closest('[data-calplat]'); if (pl){ S.calPlat = pl.dataset.calplat; renderCalendar(); return; }
+  const add = e.target.closest('[data-caladd]'); if (add){ openCopyForm(null, {data: add.dataset.caladd}); return; }
+  const more = e.target.closest('[data-calday]');
+  if (more){ const cell = more.closest('.cal-day'); const k = more.dataset.calday;
+    const items = calPosts().filter(p=>p.data_prevista===k).sort(calSort);
+    more.remove(); cell.querySelectorAll('.cal-item').forEach(x=>x.remove()); cell.insertAdjacentHTML('beforeend', items.map(calItem).join('')); return; }
+  if (CAL_DRAG.justDropped) return;
+  const it = e.target.closest('[data-calitem]'); if (!it) return;
+  const p = getPost(it.dataset.calitem); if (p) openItem(p);
+});
+$('#calWrap').addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const it = e.target.closest('[data-calitem]'); if (!it) return;
+  e.preventDefault(); const p = getPost(it.dataset.calitem); if (p) openItem(p);
+});
+const CAL_DRAG = { id:null, justDropped:false };
+$('#calWrap').addEventListener('dragstart', e => {
+  const it = e.target.closest('[data-calitem]'); if (!it || !editing()) return;
+  CAL_DRAG.id = it.dataset.calitem; e.dataTransfer.effectAllowed = 'move';
+  try { e.dataTransfer.setData('text/plain', CAL_DRAG.id); } catch(err){}
+});
+$('#calWrap').addEventListener('dragover', e => {
+  if (!CAL_DRAG.id) return; const day = e.target.closest('.cal-day'); if (!day) return;
+  e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.cal-day.drop-ok').forEach(x => x !== day && x.classList.remove('drop-ok')); day.classList.add('drop-ok');
+});
+$('#calWrap').addEventListener('dragleave', e => { const day = e.target.closest('.cal-day'); if (day && !day.contains(e.relatedTarget)) day.classList.remove('drop-ok'); });
+$('#calWrap').addEventListener('dragend', () => { CAL_DRAG.id = null; document.querySelectorAll('.cal-day.drop-ok').forEach(x=>x.classList.remove('drop-ok')); });
+$('#calWrap').addEventListener('drop', async e => {
+  const day = e.target.closest('.cal-day'); const id = CAL_DRAG.id; CAL_DRAG.id = null;
+  document.querySelectorAll('.cal-day.drop-ok').forEach(x=>x.classList.remove('drop-ok'));
+  if (!day || !id) return; e.preventDefault();
+  const p = getPost(id); const k = day.dataset.day; if (!p || p.data_prevista === k) return;
+  CAL_DRAG.justDropped = true; setTimeout(() => { CAL_DRAG.justDropped = false; }, 80);
+  const before = p.data_prevista; p.data_prevista = k; renderCalendar();
+  if (await savePost(p.id, {data_prevista:k})){ toast(`Data alterada para ${fmtDay(k)}`); await refresh(); }
+  else { p.data_prevista = before; renderCalendar(); }
+});
+let calRW = narrow();
+window.addEventListener('resize', () => { const n = narrow(); if (n !== calRW){ calRW = n; renderCalendar(); } });
+
 function renderGrid(){
   const list = sorted();
   const g = $('#grid');
@@ -683,14 +878,15 @@ function renderDetail(){
 
     <div class="appr">
       <div class="appr-status">
-        <span class="pill ${esc(p.status)}"><i></i>${p.etapa==='aprovado' ? 'Aprovado' : p.etapa==='publicado' ? 'Publicado' : (STATUS[p.status]||'')}</span>
+        <span class="pill ${esc(p.status)}"><i></i>${p.etapa==='aprovado' ? 'Aprovado' : p.etapa==='agendado' ? 'Agendado' : p.etapa==='publicado' ? 'Publicado' : (STATUS[p.status]||'')}</span>
         ${p.decididoEm && p.status!=='pendente' && p.status!=='publicado' ? `<span class="meta">${fmtDate(p.decididoEm)}</span>`:''}
       </div>
       ${canDecide ? `
       <div class="decide">
         <button type="button" class="btn ok" data-act="approve">✓ Aprovar</button>
         <button type="button" class="btn warn" data-act="adjust">Pedir ajuste</button>
-      </div>` : `<p class="hint">${p.etapa==='aprovado' ? 'Post aprovado ✓ Ele entra no perfil na data combinada.' : 'Este post já está no perfil e aparece aqui só para ver como as novas artes combinam com o feed.'}</p>`}
+      </div>` : `<p class="hint">${p.etapa==='aprovado' ? 'Post aprovado ✓ Ele entra no perfil na data combinada.' : p.etapa==='agendado' ? 'Post aprovado e agendado ✓' : 'Este post já está no perfil e aparece aqui só para ver como as novas artes combinam com o feed.'}</p>`}
+      ${pubInfoHTML(p)}
 
       ${safeUrl(p.drive_url) ? `<div class="drive-post"><span>Arquivos deste post em alta qualidade</span><a class="btn small primary" href="${esc(safeUrl(p.drive_url))}" target="_blank" rel="noopener noreferrer">${'<svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" aria-hidden=\"true\"><path d=\"M12 4v11M7 10l5 5 5-5M5 20h14\"/></svg>'} Baixar</a></div>` : ''}
       <section class="fullcap">
@@ -755,7 +951,7 @@ function renderMode(){
     ? 'Organize cada conteúdo por etapa: copy e roteiro, produção e aprovação do post. Depois é só mandar o link para o cliente.'
     : 'Acompanhe cada conteúdo por etapa: aprove os textos, veja as artes no feed e aprove ou peça ajuste.';
 }
-function renderAll(){ renderMode(); renderView(); renderProfile(); renderSummary(); renderBoard(); renderGrid(); renderDetail(); }
+function renderAll(){ renderMode(); renderView(); renderProfile(); renderSummary(); renderBoard(); renderCalendar(); renderGrid(); renderDetail(); }
 
 /* ---------- data ---------- */
 function errMsg(e){ const m = (e && (e.message||'')) || ''; return /fora_de_aprovacao/.test(m) ? 'Este conteúdo não está mais em aprovação. Recarregue a página.' : /link_invalido/.test(m) ? 'Este link não é mais válido.' : /permission|policy|JWT|401|403/i.test(m) ? 'Você não tem permissão para esta ação.' : 'Não foi possível salvar. Confira a internet e tente de novo.'; }
@@ -782,6 +978,7 @@ async function loadAll(){
   S.posts = (data.posts||[]).map(r => ({ id:r.id, ordem:r.ordem, tipo:r.tipo, status:r.status, legenda:r.legenda||'',
     midias: Array.isArray(r.midias) ? r.midias : [], capa:r.capa, drive_url:r.drive_url, decididoEm:r.decidido_em,
     etapa:r.etapa||'aprovacao', titulo:r.titulo||'', roteiro:r.roteiro||'', data_prevista:r.data_prevista||null, copy_status:r.copy_status||'pendente',
+    hora_prevista:r.hora_prevista||null, plataformas: Array.isArray(r.plataformas) && r.plataformas.length ? r.plataformas : ['instagram'],
     comentarios: byPost[r.id]||[] }));
   if (S.clientName) document.title = `${S.clientName} · Aprovação`;
 }
@@ -797,7 +994,7 @@ async function refresh(){
   $('#notice').hidden = true; S.loaded = true;
   if (S.sel && !getPost(S.sel)) S.sel = null;
   const typing = document.activeElement && document.activeElement.id === 'cmt';
-  renderMode(); renderView(); renderProfile(); renderSummary(); renderBoard(); renderGrid();
+  renderMode(); renderView(); renderProfile(); renderSummary(); renderBoard(); renderCalendar(); renderGrid();
   if (!typing) renderDetail();
   if (!$('#cardModal').hidden && S.card && !(document.activeElement && document.activeElement.id==='ccmt')) openCard(S.card, true);
 }
@@ -820,7 +1017,7 @@ $('#grid').addEventListener('click', e => {
 });
 $('#summary').addEventListener('click', e => {
   const b = e.target.closest('[data-jump]'); if (!b) return;
-  const fn = b.dataset.jump==='wait' ? awaiting : b.dataset.jump==='adj' ? adjusting : (p => p.etapa==='aprovado'||p.etapa==='publicado');
+  const fn = b.dataset.jump==='wait' ? awaiting : b.dataset.jump==='adj' ? adjusting : (p => ['aprovado','agendado','publicado'].includes(p.etapa));
   const p = [...S.posts].sort(colSort).find(fn); if (p) openItem(p);
 });
 $('#views').addEventListener('click', e => { const b = e.target.closest('[data-view]'); if (!b) return; S.view = b.dataset.view; renderView(); if (S.view==='feed'){ renderGrid(); renderDetail(); } });
@@ -903,7 +1100,8 @@ function openPostForm(p){
   const isNew = !p;
   F = { id: p?.id || null, tipo: p?.tipo || 'post', publicado: p?.etapa==='publicado', titulo: p?.titulo || '',
         items: p ? (p.amostra?.length ? p.amostra.map(a=>({sample:a})) : (p.midias||[]).map(m=>({id:m.id, tipo:m.tipo}))) : [],
-        capa: p?.capa ? {id:p.capa} : null, legenda: p?.legenda || '', drive: p?.drive_url || '', orig: p || null };
+        capa: p?.capa ? {id:p.capa} : null, legenda: p?.legenda || '', drive: p?.drive_url || '', orig: p || null,
+        data: p?.data_prevista || '', hora: (p?.hora_prevista||'').slice(0,5), nets: p ? plats(p) : ['instagram'] };
   const m = $('#postModal');
   m.innerHTML = `<form class="box" id="pf" novalidate>
     <h2>${isNew?'Novo post':(p && (p.etapa==='copy'||p.etapa==='producao') ? 'Enviar arte' : 'Editar post')}</h2>
@@ -920,6 +1118,10 @@ function openPostForm(p){
     <div class="field" id="capaField" hidden><span>Capa do Reels (opcional)</span>
       <label class="drop"><input type="file" id="capaFile" accept="image/png,image/jpeg,image/webp"><span>Escolher imagem de capa</span></label>
       <div class="thumbs" id="capaThumb"></div>
+    </div>
+    <div class="two">
+      <div class="field"><label for="pData">Publicação prevista</label><div class="dt"><input type="date" id="pData" value="${esc(F.data)}"><input type="time" id="pHora" aria-label="Horário" value="${esc(F.hora)}"></div></div>
+      <div class="field"><span>Redes</span>${netPickHTML('pnet', F.nets)}</div>
     </div>
     <div class="field"><label for="legenda">Legenda</label>
       <textarea id="legenda" rows="6" maxlength="2200" placeholder="Escreva a legenda com hashtags e menções">${esc(F.legenda)}</textarea>
@@ -993,6 +1195,9 @@ async function submitPost(){
   const drive_url = driveRaw ? safeUrl(driveRaw) : null;
   if (driveRaw && !drive_url){ err.textContent = 'O link do Drive precisa começar com https://'; return; }
   const publicado = $('#publicado').checked;
+  const plataformas = readNets($('#pf'), 'pnet');
+  if (!plataformas){ err.textContent = 'Escolha pelo menos uma rede.'; return; }
+  const data_prevista = $('#pData').value || null, hora_prevista = $('#pHora').value || null;
   if (!F.items.length){ err.textContent = 'Adicione pelo menos um arquivo.'; return; }
   if (F.tipo==='carrossel' && F.items.length<2){ err.textContent = 'Um carrossel precisa de pelo menos 2 arquivos.'; return; }
   if (F.tipo==='reels' && !F.items[0].sample && F.items[0].tipo!=='video'){ err.textContent = 'Reels precisa de um vídeo (MP4 ou WebM).'; return; }
@@ -1022,7 +1227,7 @@ async function submitPost(){
     let capa = null;
     if (F.tipo==='reels' && F.capa){ capa = F.capa.file ? await upload(F.capa.file) : F.capa.id; }
     btn.textContent = 'Salvando…';
-    const doc = { tipo: F.tipo, legenda, midias, capa, drive_url, titulo };
+    const doc = { tipo: F.tipo, legenda, midias, capa, drive_url, titulo, plataformas, data_prevista, hora_prevista };
     if (!F.id){
       const maxOrd = Math.max(0, ...S.posts.map(p=>p.ordem||0));
       Object.assign(doc, {ordem: maxOrd+1, status: publicado?'publicado':'pendente', etapa: publicado?'publicado':'aprovacao', copy_status:'aprovado', cliente_id:S.clientId, rodada_id:S.roundId});
@@ -1039,7 +1244,7 @@ async function submitPost(){
         doc.status = 'pendente'; doc.etapa = 'aprovacao'; doc.copy_status = 'aprovado';
         await sb.from('comentarios').insert({post_id: F.id, autor:'sistema', texto:'Arte enviada para aprovação.', etapa:'post'});
       }
-      else if (changed && (o.status === 'ajuste' || o.etapa === 'aprovado')){
+      else if (changed && (o.status === 'ajuste' || o.etapa === 'aprovado' || o.etapa === 'agendado')){
         doc.status = 'pendente'; doc.etapa = 'aprovacao';
         doc.decididoEm = null;
         await sb.from('comentarios').insert({post_id: F.id, autor:'sistema', texto:'Nova versão enviada pela agência.', etapa:'post'});
@@ -1083,11 +1288,12 @@ function openCard(id, keep){
   const who = c => c.autor==='agencia'?'Agência':c.autor==='cliente'?'Cliente':'Atualização';
   const scroll = keep ? (m.querySelector('.box')?.scrollTop || 0) : 0;
   m.innerHTML = `<div class="box cardbox" role="dialog" aria-modal="true" aria-label="${esc(cardTitle(p))}">
-    <div class="detail-head"><span class="cmeta"><span class="chip">${esc(TYPES[p.tipo]||'Post')}</span>${p.data_prevista?`<span>Publicação prevista: ${esc(fmtDay(p.data_prevista))}</span>`:''}</span>
+    <div class="detail-head"><span class="cmeta"><span class="chip">${esc(TYPES[p.tipo]||'Post')}</span>${platIcons(p,14)}</span>
       <button type="button" class="close" style="display:inline-flex" data-cact="close" aria-label="Fechar">${I.x}</button></div>
     <h2>${esc(cardTitle(p))}</h2>
     ${stepperHTML(p)}
     <div>${kstate(p)}</div>
+    ${pubInfoHTML(p)}
     ${p.roteiro ? `<h3 class="sec-h">${p.tipo==='reels'?'Roteiro':'Copy / texto da arte'}</h3><div class="textblock">${esc(p.roteiro)}</div>` : ''}
     ${p.legenda ? `<div class="fullcap-head"><h3 class="sec-h">Legenda</h3><span class="hint">${p.legenda.length} / 2.200</span></div><div class="textblock">${captionHTML(p.legenda)}</div>` : ''}
     ${!p.roteiro && !p.legenda ? '<p class="hint">O texto deste card ainda não foi escrito.</p>' : ''}
@@ -1152,7 +1358,7 @@ $('#cardModal').addEventListener('click', async e => {
   }
 });
 
-function openCopyForm(p){
+function openCopyForm(p, preset){
   const isNew = !p; const m = $('#postModal');
   const tipo = p?.tipo || 'post';
   m.innerHTML = `<form class="box" id="cf" novalidate>
@@ -1162,9 +1368,10 @@ function openCopyForm(p){
       ${Object.entries(TYPES).map(([k,v])=>`<label><input type="radio" name="ctipo" value="${k}" ${tipo===k?'checked':''}><b>${v}</b></label>`).join('')}
     </div></div>
     <div class="two">
-      <div class="field"><label for="cData">Publicação prevista</label><input type="date" id="cData" value="${esc(p?.data_prevista||'')}" style="width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:4px;padding:9px 12px;font:inherit"></div>
+      <div class="field"><label for="cData">Publicação prevista</label><div class="dt"><input type="date" id="cData" value="${esc(p?.data_prevista||preset?.data||'')}"><input type="time" id="cHora" aria-label="Horário" value="${esc((p?.hora_prevista||'').slice(0,5))}"></div></div>
       ${isNew ? `<div class="field"><label for="cEtapa">Começa em</label><select id="cEtapa">${ETAPAS.filter(e=>!FEED_ETAPAS.includes(e.k)).map(e=>`<option value="${e.k}">${esc(e.t)}</option>`).join('')}</select></div>` : '<div></div>'}
     </div>
+    <div class="field"><span>Redes</span>${netPickHTML('cnet', p ? plats(p) : ['instagram'])}</div>
     <div class="field"><label for="cRoteiro">Copy / roteiro</label>
       <textarea id="cRoteiro" rows="7" placeholder="Texto das artes, roteiro do Reels, falas, cenas…">${esc(p?.roteiro||'')}</textarea></div>
     <div class="field"><label for="cLegenda">Legenda</label>
@@ -1179,8 +1386,10 @@ function openCopyForm(p){
     e.preventDefault();
     const titulo = $('#cTitulo').value.trim();
     if (!titulo){ $('#cErr').textContent = 'Dê um título para o card.'; $('#cTitulo').focus(); return; }
+    const plataformas = readNets(f, 'cnet');
+    if (!plataformas){ $('#cErr').textContent = 'Escolha pelo menos uma rede.'; return; }
     const doc = { titulo, tipo: (f.querySelector('input[name="ctipo"]:checked')||{}).value || 'post',
-      data_prevista: $('#cData').value || null, roteiro: $('#cRoteiro').value, legenda: $('#cLegenda').value };
+      data_prevista: $('#cData').value || null, hora_prevista: $('#cHora').value || null, plataformas, roteiro: $('#cRoteiro').value, legenda: $('#cLegenda').value };
     const btn = $('#cSave'); btn.disabled = true;
     try {
       if (isNew){
@@ -1215,7 +1424,9 @@ async function moveCard(p, to){
   if (to==='copy') patch.copy_status = 'pendente';
   if (to==='producao') patch.copy_status = 'aprovado';
   if (to==='aprovacao') patch.status = 'pendente';
+  if (to==='agendado' && !p.data_prevista){ toast('Defina a data de publicação antes de agendar (Editar texto).'); return false; }
   if (to==='aprovado'){ patch.status = 'aprovado'; patch.decididoEm = new Date().toISOString(); }
+  if (to==='agendado' && p.status !== 'aprovado'){ patch.status = 'aprovado'; if (!p.decididoEm) patch.decididoEm = new Date().toISOString(); }
   if (to==='publicado') patch.status = 'publicado';
   const before = p.etapa; p.etapa = to; Object.assign(p, patch); renderBoard(); renderSummary();
   if (await savePost(p.id, patch)){ toast(`Movido para ${ETAPA_NOME[to]}`); await refresh(); return true; }

@@ -112,7 +112,7 @@ function statusFor({pendente, ajuste, aprovado, total}){
 }
 function stageKey(p){
   const e = p.etapa || 'aprovacao';
-  if (e==='aprovado' || e==='publicado') return 'aprovado';
+  if (e==='aprovado' || e==='agendado' || e==='publicado') return 'aprovado';
   const st = e==='copy' ? p.copy_status : e==='aprovacao' ? p.status : null;
   return st==='pendente' ? 'pendente' : st==='ajuste' ? 'ajuste' : null;
 }
