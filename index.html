@@ -586,11 +586,11 @@ function mediaEl(m, ctx){
   if (m.sample) return sampleHTML(m.sample);
   if (m.tipo === 'video') return ctx === 'tile'
     ? `<video src="${blob(m.id)}#t=0.1" muted playsinline preload="metadata"></video>`
-    : `<video src="${blob(m.id)}" controls playsinline preload="metadata"></video>`;
+    : `<video src="${blob(m.id)}" ${m.capa?`poster="${blob(m.capa)}"`:''} controls playsinline preload="metadata"></video>`;
   return `<img src="${blob(m.id)}" alt="" loading="lazy">`;
 }
 function coverEl(p){
-  if (p.tipo === 'reels' && p.capa) return `<img src="${blob(p.capa)}" alt="" loading="lazy">`;
+  if ((p.tipo === 'reels' || p.tipo === 'carrossel') && p.capa) return `<img src="${blob(p.capa)}" alt="" loading="lazy">`;
   const m = mediaList(p)[0];
   return m ? mediaEl(m,'tile') : '<div class="sample" style="background:var(--phone-line)"></div>';
 }
@@ -832,7 +832,7 @@ function renderDetail(){
   const feedHTML = `<article class="ig">
       <div class="ig-h"><div class="avatar sm" ${avStyle}></div><div>${handle}${isReel?'<small>Áudio original</small>':''}</div><span class="more">${I.dots}</span></div>
       <div class="media" style="--ar:${ar}">
-        <div class="car" id="car">${media.map(m=>`<div class="slide">${mediaEl(m,'full')}</div>`).join('') || '<div class="slide"></div>'}</div>
+        <div class="car" id="car">${media.map((m,i)=>`<div class="slide">${mediaEl(i===0 && m.tipo==='video' && p.capa ? {...m,capa:p.capa} : m,'full')}</div>`).join('') || '<div class="slide"></div>'}</div>
         ${n>1?`<span class="count" id="count">${S.slide+1}/${n}</span>
           <button type="button" class="arrow l" data-act="prev" aria-label="Anterior" ${S.slide===0?'hidden':''}>${I.l}</button>
           <button type="button" class="arrow r" data-act="next" aria-label="Próxima" ${S.slide===n-1?'hidden':''}>${I.r}</button>`:''}
@@ -1115,9 +1115,10 @@ function openPostForm(p){
       <label class="drop" id="drop"><input type="file" id="files" multiple accept="image/png,image/jpeg,image/webp,image/gif,video/mp4,video/webm,video/quicktime"><span id="dropTxt">Clique ou arraste os arquivos aqui<br><small>Vídeos acima de 50 MB são comprimidos automaticamente antes do envio.</small></span></label>
       <div class="thumbs" id="thumbs"></div>
     </div>
-    <div class="field" id="capaField" hidden><span>Capa do Reels (opcional)</span>
+    <div class="field" id="capaField" hidden><span id="capaLabel">Capa (opcional)</span>
       <label class="drop"><input type="file" id="capaFile" accept="image/png,image/jpeg,image/webp"><span>Escolher imagem de capa</span></label>
       <div class="thumbs" id="capaThumb"></div>
+      <span class="hint">A capa aparece na prévia do feed e antes de reproduzir o primeiro vídeo. Ela não adiciona uma lâmina ao carrossel. Ao publicar no Instagram, configure a capa no aplicativo.</span>
     </div>
     <div class="two">
       <div class="field"><label for="pData">Publicação prevista</label><div class="dt"><input type="date" id="pData" value="${esc(F.data)}"><input type="time" id="pHora" aria-label="Horário" value="${esc(F.hora)}"></div></div>
@@ -1145,7 +1146,8 @@ function openPostForm(p){
       return `<div class="thumb">${inner}<span class="n">${i+1}</span><button type="button" class="x" data-rm="${i}" aria-label="Remover">×</button></div>`;
     }).join('');
     $('#capaThumb').innerHTML = F.capa ? `<div class="thumb"><img src="${F.capa.url || blob(F.capa.id)}" alt=""><button type="button" class="x" data-rmcapa aria-label="Remover capa">×</button></div>` : '';
-    $('#capaField').hidden = F.tipo !== 'reels';
+    $('#capaField').hidden = F.tipo !== 'reels' && F.tipo !== 'carrossel';
+    $('#capaLabel').textContent = F.tipo==='carrossel' ? 'Capa do carrossel / primeiro vídeo (opcional)' : 'Capa do Reels (opcional)';
     $('#mediaLabel').textContent = F.tipo==='carrossel' ? 'Imagens e vídeos (na ordem do carrossel)' : F.tipo==='reels' ? 'Vídeo' : 'Imagem';
     $('#capCount').textContent = `${$('#legenda').value.length} / 2200 caracteres`;
   };
@@ -1225,7 +1227,7 @@ async function submitPost(){
       else midias.push({id: it.id, tipo: it.tipo});
     }
     let capa = null;
-    if (F.tipo==='reels' && F.capa){ capa = F.capa.file ? await upload(F.capa.file) : F.capa.id; }
+    if ((F.tipo==='reels' || F.tipo==='carrossel') && F.capa){ capa = F.capa.file ? await upload(F.capa.file) : F.capa.id; }
     btn.textContent = 'Salvando…';
     const doc = { tipo: F.tipo, legenda, midias, capa, drive_url, titulo, plataformas, data_prevista, hora_prevista };
     if (!F.id){
