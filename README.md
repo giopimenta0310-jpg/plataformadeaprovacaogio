@@ -81,4 +81,4 @@ insert into public.admins (email) values ('email@exemplo.com');
 
 ### Grid da Margô
 
-O portal da Margô exibe primeiro os posts publicados, do mais recente ao mais antigo. Em seguida aparecem os posts em aprovação, aprovados e agendados, pela data prevista em ordem crescente. Posts sem data ficam no final de seu grupo; empates preservam a ordem manual anterior. A regra usa o identificador público do portal e mantém os outros clientes na ordenação manual. Os botões manuais de posição ficam desabilitados para a Margô. Nenhum registro de publicação é alterado por essa visualização.
+O portal da Margô reúne publicados e conteúdos em aprovação, aprovados ou agendados em uma única sequência crescente de data e horário: por exemplo, dia 10 → dia 12 → dia 14, independentemente do status. Posts sem data ficam ao final; empates preservam a ordem manual anterior. A regra usa o identificador público do portal e mantém os outros clientes na ordenação manual. Os botões manuais de posição ficam desabilitados para a Margô. Nenhum registro de publicação é alterado por essa visualização.
