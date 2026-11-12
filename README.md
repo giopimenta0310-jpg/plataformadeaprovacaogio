@@ -77,3 +77,8 @@ insert into public.admins (email) values ('email@exemplo.com');
 ## Cliente atual
 
 **Margô Cafés Especiais** (@margo), Joinville. Abertura em 10/10.
+
+
+### Grid da Margô
+
+O portal da Margô exibe primeiro os posts publicados, do mais recente ao mais antigo. Em seguida aparecem os posts em aprovação, aprovados e agendados, pela data prevista em ordem crescente. Posts sem data ficam no final de seu grupo; empates preservam a ordem manual anterior. A regra usa o identificador público do portal e mantém os outros clientes na ordenação manual. Os botões manuais de posição ficam desabilitados para a Margô. Nenhum registro de publicação é alterado por essa visualização.
