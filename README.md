@@ -83,7 +83,7 @@ insert into public.admins (email) values ('email@exemplo.com');
 
 Na área da agência, arraste uma arte sobre a posição desejada. No celular, use o símbolo ↕ no canto da arte. Os botões “Mover antes” e “Mover depois” oferecem a mesma organização pelo painel de detalhes. A ordem fica salva no banco e aparece para o cliente em outros navegadores e computadores. Datas, status, mídias e legendas não são alterados.
 
-A Margô mantém a ordem crescente por data até o primeiro movimento manual. Depois disso, a ordem manual prevalece; novos conteúdos entram no início do grid. Os outros clientes mantêm a ordenação manual existente.
+A Margô começa com as datas mais recentes em cima, como no Instagram. A ordem ajustada manualmente fica preservada. Ao criar um post no feed, enviar uma arte da produção para o feed ou alterar sua data/horário nos formulários ou no calendário, somente esse post é encaixado na posição correspondente à publicação: datas mais novas acima, mais antigas abaixo, sem data ao final. O restante do grid mantém sua ordem relativa. Os outros clientes mantêm a ordenação manual existente.
 
 A implementação reserva valores a partir de 1.000.000 na coluna inteira `posts.ordem` para identificar uma sequência manual salva, sem migração de banco. Cada gravação valida cliente, ordem anterior e retorno do servidor. Em falha parcial, as gravações confirmadas são revertidas com comparação da ordem gravada, evitando sobrescrever uma mudança concorrente. O cliente continua sem controles de edição.
 

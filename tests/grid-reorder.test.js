@@ -3,16 +3,21 @@
 const assert=(ok,message)=>{if(!ok)throw Error(message);};
 const clone=x=>JSON.parse(JSON.stringify(x));
 const initial=[
- {id:'a',cliente_id:'client-test',titulo:'Publicado 10',ordem:5,etapa:'publicado',status:'publicado',data_prevista:'2026-11-10'},
- {id:'b',cliente_id:'client-test',titulo:'Previsto 12',ordem:5,etapa:'aprovado',status:'aprovado',data_prevista:'2026-11-12'},
- {id:'c',cliente_id:'client-test',titulo:'Previsto 14',ordem:2,etapa:'aprovacao',status:'pendente',data_prevista:'2026-11-14'},
- {id:'d',cliente_id:'client-test',titulo:'Publicado 16',ordem:9,etapa:'publicado',status:'publicado',data_prevista:'2026-11-16'},
+ {id:'a',cliente_id:'client-test',titulo:'Publicado 16',ordem:5,etapa:'publicado',status:'publicado',data_prevista:'2026-11-16'},
+ {id:'b',cliente_id:'client-test',titulo:'Previsto 14',ordem:5,etapa:'aprovado',status:'aprovado',data_prevista:'2026-11-14'},
+ {id:'c',cliente_id:'client-test',titulo:'Previsto 12',ordem:2,etapa:'aprovacao',status:'pendente',data_prevista:'2026-11-12'},
+ {id:'d',cliente_id:'client-test',titulo:'Publicado 10',ordem:9,etapa:'publicado',status:'publicado',data_prevista:'2026-11-10'},
  {id:'copy',cliente_id:'client-test',titulo:'Rascunho',ordem:4,etapa:'copy',status:'pendente',data_prevista:null}
 ].map(p=>({...p,tipo:'post',midias:[],comentarios:[],plataformas:['instagram'],legenda:'Legenda original'}));
-let rows=clone(initial),writes=[],failId=null;
+let rows=clone(initial),writes=[],failId=null,created=0;
 const sbMock={
+ storage:{from:()=>({getPublicUrl:()=>({data:{publicUrl:"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"}}),remove:async()=>({error:null})})},
  rpc:async()=>({data:{cliente:{id:'client-test',nome:'Teste'},posts:clone(rows),comentarios:[]},error:null}),
- from:table=>({update:patch=>{
+ from:table=>({insert:doc=>{
+   if(table!=='posts')return Promise.resolve({error:null});
+   const row={...clone(doc),id:'created-'+(++created)};rows.push(row);
+   return {select:()=>({single:async()=>({data:{id:row.id},error:null})})};
+  },update:patch=>{
   const filters=[];const q={eq(k,v){filters.push([k,v]);return q;},is(k,v){filters.push([k,v]);return q;},
    async select(){
     writes.push({patch:clone(patch),filters:clone(filters)});
@@ -20,7 +25,7 @@ const sbMock={
     if(row?.id===failId && patch.ordem>=GRID_MANUAL_BASE)return {error:{message:'simulated failure'}};
     if(!row)return {data:[],error:null};
     Object.assign(row,patch);return {data:[{id:row.id,ordem:row.ordem}],error:null};
-   }};return q;
+   },then(resolve,reject){return q.select().then(resolve,reject);}};return q;
  }})
 };
 window.__gridTestDB=sbMock;
@@ -31,7 +36,7 @@ const waitSave=async()=>{for(let i=0;i<200 && GRID_SAVE_BUSY;i++)await sleep(5);
 try {
  S.token='09d3417e-4eff-40da-a56b-72859f864732';S.isOwner=true;S.mode='agencia';S.view='feed';
  await refresh();
- assert(ids()==='a,b,c,d','Initial chronological order and all future posts');
+ assert(ids()==='a,b,c,d','Initial newest-first publication order and all future posts');
  assert(document.querySelectorAll('#grid [draggable="true"]').length===4,'Agency cannot drag all feed posts');
  assert(!$('#gridEditHint').hidden,'Missing drag hint');
  const fieldsBefore=JSON.stringify(persistedFields());
@@ -71,7 +76,29 @@ try {
  assert($('#gridEditHint').hidden,'Client sees edit hint');
  assert(await moveGridPost('a','c')===false&&writes.length===writeCount,'Client wrote order');
  assert(ids()==='b,a,d,c','Client sees different order');
+ // New dated posts are inserted without rearranging the existing sequence.
+ S.isOwner=true;S.mode='agencia';S.token='09d3417e-4eff-40da-a56b-72859f864732';
+ rows=clone(initial).map((p,i)=>({...p,ordem:p.etapa==='copy'?4:GRID_MANUAL_BASE+10-i}));await refresh();
+ const baseline=ids();assert(baseline==='a,b,c,d','Manual baseline');
+ const add=async(id,date,time=null)=>{rows.push({...clone(initial[1]),id,titulo:id,data_prevista:date,hora_prevista:time,ordem:GRID_MANUAL_BASE+100+rows.length});await refresh();await placeGridPostByDate(id);};
+ await add('middle','2026-11-13');assert(ids()==='a,b,middle,c,d','Middle date not inserted by publication');
+ assert(sorted().filter(p=>p.id!=='middle').map(p=>p.id).join()===baseline,'Existing manual order changed');
+ await add('newest','2026-11-20');assert(sorted()[0].id==='newest','Newest post not on top');
+ await add('undated',null);assert(sorted().at(-1).id==='undated','Undated post not last');
+ await add('oldest','2026-11-01');assert(ids().endsWith('oldest,undated'),'Old post not below newer posts');
+ await add('hour','2026-11-13','15:00');assert(ids().includes('hour,middle'),'Time of day not respected');
+ const movedDate=rows.find(p=>p.id==='middle');movedDate.data_prevista='2026-11-19';await refresh();await placeGridPostByDate('middle');
+ assert(ids().startsWith('newest,middle,a'),'Changed date not reinserted');
+ // Use the real creation form and stage-to-feed flow, not only the insertion helper.
+ openPostForm(null);$('#pTitulo').value='Created from form';$('#pData').value='2026-11-15';
+ F.items=[{id:'test-media',tipo:'image'}];await submitPost();
+ assert(ids().includes('a,created-1,b'),'New post form did not insert into dated slot: '+ids()+' / '+($('#formErr')?.textContent||''));
+ const draft=rows.find(p=>p.id==='copy');draft.midias=[{id:'draft-media',tipo:'image'}];draft.data_prevista='2026-11-17';await refresh();
+ assert(await moveCard(getPost('copy'),'aprovacao'),'Stage transition failed');
+ assert(ids().includes('middle,copy,a'),'Production-to-feed post not inserted by date');
+ S.posts=[];await refresh();assert(ids().includes('a,created-1,b'),'Automatic placement lost on reload');
+ S.isOwner=false;S.mode='cliente';renderAll();assert(await placeGridPostByDate('oldest')===false,'Client triggered auto writes');
  S.posts=clone(initial);S.token='another-client';assert(ids()==='d,a,b,c','Other client order changed');
- document.body.dataset.testResult='PASS: desktop drag, touch handle, move buttons, persistence/reload/client view, duplicate ranks, rollback, field preservation and client isolation';
+ document.body.dataset.testResult='PASS: desktop drag, touch handle, move buttons, persistence/reload/client view, duplicate ranks, rollback, field preservation client isolation, dated insertion, creation form and production-to-feed';
 }catch(error){document.body.dataset.testResult='FAIL: '+error.message;}
 })();

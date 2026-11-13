@@ -5,7 +5,7 @@ parser=argparse.ArgumentParser();parser.add_argument('--chrome',required=True);a
 root=Path(__file__).resolve().parents[1];source=(root/'index.html').read_text()
 source=re.sub(r'<script src="(?:config|supabase)\.js"></script>','',source)
 source=source.replace('const sb = (window.supabase && CFG.url && CFG.key) ? window.supabase.createClient(CFG.url, CFG.key) : null;',
-'''const sb = {from(...a){return window.__gridTestDB.from(...a);},rpc(...a){return window.__gridTestDB.rpc(...a);}};''')
+'''const sb = {from(...a){return window.__gridTestDB.from(...a);},rpc(...a){return window.__gridTestDB.rpc(...a);},storage:{from(...a){return window.__gridTestDB.storage.from(...a);}}};''')
 needle='renderAll();\n(async () => {';assert source.count(needle)==1
 source=source.replace(needle,(root/'tests/grid-reorder.test.js').read_text()+'\nreturn;\n'+needle)
 with tempfile.TemporaryDirectory(prefix='grid-reorder-') as directory:

@@ -609,8 +609,10 @@ function feedPosts(){ return S.posts.filter(p => FEED_ETAPAS.includes(p.etapa));
 // Reserve a high integer range in the existing ordem column; no schema change is needed.
 const GRID_MANUAL_BASE = 1000000;
 let GRID_SAVE_BUSY = false;
+function isMargoGrid(){ return S.token === '09d3417e-4eff-40da-a56b-72859f864732'; }
+function gridPublicationKey(p){ return p.data_prevista ? p.data_prevista+'T'+(p.hora_prevista||'00:00') : null; }
 function feedByPublicationDate(){
-  return S.token === '09d3417e-4eff-40da-a56b-72859f864732'
+  return isMargoGrid()
     && !feedPosts().some(p => Number(p.ordem) >= GRID_MANUAL_BASE);
 }
 function sorted(){
@@ -625,7 +627,7 @@ function sorted(){
       const aDate = a.data_prevista + 'T' + (a.hora_prevista || '00:00');
       const bDate = b.data_prevista + 'T' + (b.hora_prevista || '00:00');
       const dates = aDate.localeCompare(bDate);
-      if (dates) return dates;
+      if (dates) return -dates;
     }
     return (b.ordem||0)-(a.ordem||0);
   });
@@ -818,7 +820,7 @@ $('#calWrap').addEventListener('drop', async e => {
   const p = getPost(id); const k = day.dataset.day; if (!p || p.data_prevista === k) return;
   CAL_DRAG.justDropped = true; setTimeout(() => { CAL_DRAG.justDropped = false; }, 80);
   const before = p.data_prevista; p.data_prevista = k; renderCalendar();
-  if (await savePost(p.id, {data_prevista:k})){ toast(`Data alterada para ${fmtDay(k)}`); await refresh(); }
+  if (await savePost(p.id, {data_prevista:k})){ toast(`Data alterada para ${fmtDay(k)}`); await refresh(); await placeGridPostByDate(p.id); }
   else { p.data_prevista = before; renderCalendar(); }
 });
 let calRW = narrow();
@@ -1065,6 +1067,23 @@ async function moveGridPost(sourceId,targetId){
   const from = list.findIndex(p=>p.id===sourceId), to = list.findIndex(p=>p.id===targetId);
   if (from < 0 || to < 0) return false;
   const [moved] = list.splice(from,1); list.splice(to,0,moved);
+  return persistGridOrder(list);
+}
+async function placeGridPostByDate(id){
+  if (!isMargoGrid() || !editing() || GRID_SAVE_BUSY) return false;
+  const current=sorted(), post=current.find(p=>p.id===id);
+  if (!post) return false;
+  const key=gridPublicationKey(post), list=current.filter(p=>p.id!==id);
+  let index=key ? list.findIndex(p=>!gridPublicationKey(p)||gridPublicationKey(p)<key) : list.length;
+  if(index<0)index=list.length;
+  list.splice(index,0,post);
+  if(list.every((p,i)=>p.id===current[i].id))return true;
+  return persistGridOrder(list,'Post encaixado no grid pela data de publicação');
+}
+async function persistGridOrder(list,successMessage='Ordem do grid salva para você e para o cliente'){
+  if (!editing() || GRID_SAVE_BUSY || !S.clientId) return false;
+  const current=feedPosts();
+  if(list.length!==current.length || new Set(list.map(p=>p.id)).size!==current.length || list.some(p=>!current.some(q=>q.id===p.id)))return false;
   const clientId = S.clientId;
   const stamp = new Date().toISOString();
   const updates = list.map((p,i)=>({id:p.id, previous:p.ordem ?? null, next:GRID_MANUAL_BASE+list.length-i}));
@@ -1087,7 +1106,7 @@ async function moveGridPost(sourceId,targetId){
         : 'Não foi possível salvar a ordem. Recarregue e tente novamente.');
     } else {
       updates.forEach(u=>{ const p=getPost(u.id); if(p) p.ordem=u.next; });
-      saved = true; toast('Ordem do grid salva para você e para o cliente');
+      saved = true; toast(successMessage);
     }
   } finally {
     GRID_SAVE_BUSY = false; renderGrid(); renderDetail();
@@ -1364,16 +1383,18 @@ async function submitPost(){
     let capa = null;
     if ((F.tipo==='reels' || F.tipo==='carrossel') && F.capa){ capa = F.capa.file ? await upload(F.capa.file) : F.capa.id; }
     btn.textContent = 'Salvando…';
+    let gridPositionId = null;
     const doc = { tipo: F.tipo, legenda, midias, capa, drive_url, titulo, plataformas, data_prevista, hora_prevista };
     if (!F.id){
       const maxOrd = Math.max(0, ...S.posts.map(p=>p.ordem||0));
       Object.assign(doc, {ordem: maxOrd+1, status: publicado?'publicado':'pendente', etapa: publicado?'publicado':'aprovacao', copy_status:'aprovado', cliente_id:S.clientId, rodada_id:S.roundId});
       const { data, error } = await sb.from('posts').insert(doc).select('id').single();
       if (error) throw error;
-      S.sel = data.id; S.slide = 0;
+      S.sel = data.id; S.slide = 0; gridPositionId=data.id;
       toast(publicado ? 'Post adicionado ao feed' : 'Post enviado para aprovação');
     } else {
       const o = F.orig;
+      if(!FEED_ETAPAS.includes(o.etapa)||data_prevista!==(o.data_prevista||null)||hora_prevista!==(o.hora_prevista||null))gridPositionId=F.id;
       const changed = legenda !== (o.legenda||'') || JSON.stringify(midias) !== JSON.stringify(o.midias||[]) || capa !== (o.capa||null);
       if (publicado){ doc.status = 'publicado'; doc.etapa = 'publicado'; }
       else if (o.etapa === 'publicado'){ doc.status = 'pendente'; doc.etapa = 'aprovacao'; }
@@ -1399,6 +1420,7 @@ async function submitPost(){
     F.items.forEach(it=>it.url&&URL.revokeObjectURL(it.url));
     closeModal($('#postModal')); closeModal($('#cardModal'));
     await refresh();
+    if(gridPositionId)await placeGridPostByDate(gridPositionId);
   } catch(e){
     const m = String((e && (e.message || e.error)) || '');
     err.textContent = /compress_failed/.test(m) ? 'Não consegui comprimir este vídeo aqui no navegador. Exporte o Reels em 1080p com tamanho menor que 50 MB (por exemplo no CapCut) e tente de novo.'
@@ -1545,7 +1567,9 @@ function openCopyForm(p, preset){
         if (!(await savePost(p.id, doc))) { btn.disabled = false; return; }
         toast('Texto salvo');
       }
+      const dateChanged=!isNew&&(doc.data_prevista!==(p.data_prevista||null)||doc.hora_prevista!==(p.hora_prevista||null));
       closeModal(m); await refresh();
+      if(dateChanged)await placeGridPostByDate(p.id);
       if (!isNew) openCard(p.id);
     } catch(err){ $('#cErr').textContent = errMsg(err); btn.disabled = false; }
   });
@@ -1566,7 +1590,7 @@ async function moveCard(p, to){
   if (to==='agendado' && p.status !== 'aprovado'){ patch.status = 'aprovado'; if (!p.decididoEm) patch.decididoEm = new Date().toISOString(); }
   if (to==='publicado') patch.status = 'publicado';
   const before = p.etapa; p.etapa = to; Object.assign(p, patch); renderBoard(); renderSummary();
-  if (await savePost(p.id, patch)){ toast(`Movido para ${ETAPA_NOME[to]}`); await refresh(); return true; }
+  if (await savePost(p.id, patch)){ toast(`Movido para ${ETAPA_NOME[to]}`); await refresh(); if(!FEED_ETAPAS.includes(before)&&FEED_ETAPAS.includes(to))await placeGridPostByDate(p.id); return true; }
   p.etapa = before; await refresh(); return false;
 }
 const DRAG = { card:null, post:null, ghost:null, startX:0, startY:0, dx:0, dy:0, active:false, timer:null, pointer:null, over:null, suppressClick:false, scrollRaf:null, lastX:0 };
