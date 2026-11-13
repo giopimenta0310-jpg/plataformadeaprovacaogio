@@ -94,3 +94,11 @@ python3 tests/grid-reorder.browser.py --chrome /caminho/para/chrome
 ```
 
 O teste usa a página completa com dados fictícios e um banco em memória; não solicita login nem grava na plataforma real.
+
+### Importação de ideias
+
+`/importar-planejamento?c=TOKEN_DO_CLIENTE` recebe um JSON de planejamento versão 1. A página usa a sessão normal da agência, confere o cliente, mostra o que será criado/atualizado e permite importar até 100 ideias em Copy e roteiro. O arquivo de dados é fornecido no navegador; nenhum planejamento precisa ser incluído no repositório do site. Datas, aprovação, ordem e mídias dos posts existentes são preservadas, exceto os campos de briefing/data explicitamente indicados para cards ainda em copy. Identificadores estáveis e conferência prévia permitem retomar sem duplicar cadastros após uma falha parcial.
+
+```sh
+python3 tests/planning-import.browser.py --chrome /caminho/para/chrome
+```

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Importar planejamento · Gio</title>
+<style>body{margin:0;background:#fffaf3;color:#21171c;font:16px system-ui}main{max-width:960px;margin:40px auto;padding:24px}h1{font-size:32px}textarea{display:block;box-sizing:border-box;width:100%;height:210px;margin:16px 0;padding:16px;font:13px ui-monospace,monospace;border:1px solid #b8adb0;border-radius:8px;background:white}button,a{font:inherit}button{padding:12px 20px;border:1px solid #6b2442;border-radius:8px;background:#f49ac2;color:#21171c;cursor:pointer}button:disabled{opacity:.45;cursor:default}a{color:#6b2442}table{border-collapse:collapse;width:100%;font-size:14px}td,th{text-align:left;padding:12px 8px;border-bottom:1px solid #ded5ce}.actions{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}.error{color:#a02030}#status{white-space:pre-wrap;line-height:1.5}[hidden]{display:none!important}</style>
+<script src="config.js"></script><script src="supabase.js"></script><script src="planejamento-import.js"></script></head>
+<body><main><a id="back" href="/">← Voltar à plataforma</a><h1>Importar planejamento</h1><p>Adicione ideias em <strong>Copy e roteiro</strong>, com suas datas propostas. A importação não publica artes e preserva os conteúdos já cadastrados.</p>
+<p id="account" role="status">Conferindo o acesso da agência…</p>
+<section id="editor" hidden><label for="planningFile">Arquivo JSON do planejamento</label> <input id="planningFile" type="file" accept=".json,application/json"><textarea id="planningJson" aria-label="JSON do planejamento" placeholder="Cole o planejamento JSON aqui ou selecione o arquivo acima."></textarea>
+<div class="actions"><button id="preview">Conferir planejamento</button><button id="apply" disabled>Importar ideias</button></div><div id="summary"></div><table id="list" hidden><thead><tr><th>Ação</th><th>Data proposta</th><th>Conteúdo</th></tr></thead><tbody></tbody></table></section>
+<p id="status" role="status" aria-live="polite"></p></main>
+<script>
+(async()=>{
+ const $=s=>document.querySelector(s), cfg=window.APROVACAO_CONFIG||{}, token=new URLSearchParams(location.search).get('c');
+ const sb=window.supabase.createClient(cfg.url,cfg.key), esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ $('#back').href='/?c='+encodeURIComponent(token||'');let prepared=null,busy=false;
+ const status=(message,error=false)=>{$('#status').textContent=message;$('#status').className=error?'error':'';};
+ try{
+  const {data,error}=await sb.auth.getSession();if(error||!data.session)throw Error('Entre na Área da agência na plataforma e volte a esta página.');
+  const admin=await sb.rpc('is_admin');if(admin.error||!admin.data)throw Error('Este acesso não tem permissão de agência.');
+  $('#account').textContent='Acesso da agência confirmado.';$('#editor').hidden=false;
+ }catch(e){$('#account').textContent=e.message;return;}
+ const invalidate=()=>{prepared=null;$('#apply').disabled=true;$('#summary').textContent='';$('#list').hidden=true;};
+ $('#planningJson').addEventListener('input',invalidate);
+ $('#planningFile').addEventListener('change',async e=>{const f=e.target.files[0];if(f){$('#planningJson').value=await f.text();invalidate();}});
+ $('#preview').addEventListener('click',async()=>{
+  if(busy)return;invalidate();status('Conferindo duplicatas e conteúdos existentes…');
+  try{
+   const payload=PlanningImport.parse($('#planningJson').value),plan=await PlanningImport.preview(sb,token,payload);
+   prepared=payload;const count=kind=>plan.jobs.filter(j=>j.action===kind).length;
+   $('#summary').textContent=plan.client.nome+': '+count('create')+' novas ideias, '+count('update')+' briefings para atualizar, '+count('skip')+' já cadastrados.';
+   $('#list tbody').innerHTML=plan.jobs.map(j=>'<tr><td>'+({create:'Criar',update:'Atualizar briefing',skip:'Preservar'})[j.action]+'</td><td>'+esc(j.item.data_prevista??j.existing?.data_prevista??'Sem data')+'</td><td>'+esc(j.item.titulo??j.existing?.titulo)+'</td></tr>').join('');
+   $('#list').hidden=false;$('#apply').disabled=false;status('Planejamento conferido. As ideias novas ficarão pendentes de aprovação.');
+  }catch(e){status(e.message||'Não foi possível conferir o planejamento.',true);}
+ });
+ $('#apply').addEventListener('click',async()=>{
+  if(!prepared||busy)return;busy=true;$('#apply').disabled=true;$('#preview').disabled=true;$('#planningJson').disabled=true;$('#planningFile').disabled=true;
+  try{
+   const r=await PlanningImport.apply(sb,token,prepared,(done,total,job)=>status(done+'/'+total+' · '+(job.item.titulo||job.item.expected_title)));
+   status(r.created.length+' ideias criadas; '+r.updated.length+' briefings atualizados; '+r.skipped.length+' conteúdos preservados.'+(r.failed?'\nA importação parou em “'+r.failed.title+'”: '+r.failed.message+'\nConfira o planejamento novamente para retomar sem duplicatas.':'\nImportação concluída. Volte à plataforma para conferir o calendário.'),!!r.failed);
+   prepared=null;
+  }catch(e){status(e.message||'Falha na importação. Confira antes de tentar novamente.',true);}
+  finally{busy=false;$('#preview').disabled=false;$('#planningJson').disabled=false;$('#planningFile').disabled=false;}
+ });
+})();
+</script></body></html>
