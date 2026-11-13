@@ -24,7 +24,9 @@
  $('#preview').addEventListener('click',async()=>{
   if(busy)return;invalidate();status('Conferindo duplicatas e conteúdos existentes…');
   try{
-   const payload=PlanningImport.parse($('#planningJson').value),plan=await PlanningImport.preview(sb,token,payload);
+   let raw=$('#planningJson').value.trim();
+   if(raw.startsWith('gzip:')){const bytes=Uint8Array.from(atob(raw.slice(5)),c=>c.charCodeAt(0));raw=await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();}
+   const payload=PlanningImport.parse(raw),plan=await PlanningImport.preview(sb,token,payload);
    prepared=payload;const count=kind=>plan.jobs.filter(j=>j.action===kind).length;
    $('#summary').textContent=plan.client.nome+': '+count('create')+' novas ideias, '+count('update')+' briefings para atualizar, '+count('skip')+' já cadastrados.';
    $('#list tbody').innerHTML=plan.jobs.map(j=>'<tr><td>'+({create:'Criar',update:'Atualizar briefing',skip:'Preservar'})[j.action]+'</td><td>'+esc(j.item.data_prevista??j.existing?.data_prevista??'Sem data')+'</td><td>'+esc(j.item.titulo??j.existing?.titulo)+'</td></tr>').join('');
