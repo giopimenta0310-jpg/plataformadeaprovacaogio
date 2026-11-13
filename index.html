@@ -604,7 +604,11 @@ function coverEl(p){
 }
 function captionHTML(t){ return esc(t).replace(/(^|\s)([#@][\p{L}\p{N}_.]+)/gu, '$1<span class="ht">$2</span>'); }
 const FEED_ETAPAS = ['aprovacao','aprovado','agendado','publicado'];
-function feedPosts(){ return S.posts.filter(p => FEED_ETAPAS.includes(p.etapa)); }
+// Drafts and production stay in the agency workspace, including the client preview.
+function clientVisible(p){ return editing() || FEED_ETAPAS.includes(p.etapa); }
+function visiblePosts(){ return S.posts.filter(clientVisible); }
+function visibleEtapas(){ return editing() ? ETAPAS : ETAPAS.filter(e=>FEED_ETAPAS.includes(e.k)); }
+function feedPosts(){ return visiblePosts().filter(p => FEED_ETAPAS.includes(p.etapa)); }
 // A saved manual order takes precedence over Margô's initial chronological preview.
 // Reserve a high integer range in the existing ordem column; no schema change is needed.
 const GRID_MANUAL_BASE = 1000000;
@@ -636,7 +640,7 @@ function awaiting(p){ return (p.etapa==='copy' && p.copy_status==='pendente') ||
 function adjusting(p){ return (p.etapa==='copy' && p.copy_status==='ajuste') || (p.etapa==='aprovacao' && p.status==='ajuste'); }
 function fmtDay(d){ if (!d) return ''; try { const x = new Date(d+'T12:00:00'); return x.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}).replace('.',''); } catch(e){ return d; } }
 function cardTitle(p){ return p.titulo || (p.legenda||'').split('\n')[0].slice(0,60) || (TYPES[p.tipo]||'Post'); }
-function getPost(id){ return S.posts.find(p=>p.id===id); }
+function getPost(id){ return visiblePosts().find(p=>p.id===id); }
 function editing(){ return S.isOwner && S.mode === 'agencia'; }
 function author(){ return S.isOwner ? 'agencia' : 'cliente'; }
 function safeUrl(u){ try { const x = new URL(String(u||'').trim()); return x.protocol === 'https:' ? x.href : ''; } catch(e){ return ''; } }
@@ -653,7 +657,7 @@ function renderProfile(){
   $('#phBio').innerHTML = (p.nome?`<b>${esc(p.nome)}</b>`:'') + esc(p.bio||'');
 }
 function renderSummary(){
-  const all = S.posts;
+  const all = visiblePosts();
   const wait = all.filter(awaiting).length, adj = all.filter(adjusting).length;
   const done = all.filter(p=>['aprovado','agendado','publicado'].includes(p.etapa)).length;
   const total = all.length;
@@ -703,8 +707,8 @@ function renderBoard(){
   const b = $('#board');
   b.classList.toggle('editable', editing());
   $('#boardHint').hidden = !editing();
-  b.innerHTML = ETAPAS.map(e => {
-    const items = S.posts.filter(p=>p.etapa===e.k).sort(e.k==='publicado' ? (x,y)=>colSort(y,x) : colSort);
+  b.innerHTML = visibleEtapas().map(e => {
+    const items = visiblePosts().filter(p=>p.etapa===e.k).sort(e.k==='publicado' ? (x,y)=>colSort(y,x) : colSort);
     const cards = items.map(p => {
       const ncom = (p.comentarios||[]).filter(c=>c.autor!=='sistema').length;
       const exc = p.etapa==='copy' || p.etapa==='producao' ? (p.roteiro || p.legenda || '') : (p.legenda || '');
@@ -730,7 +734,7 @@ function renderBoard(){
 /* ---------- calendário ---------- */
 const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 const DOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-function calPosts(){ return S.posts.filter(p => S.calPlat === 'todas' || plats(p).includes(S.calPlat)); }
+function calPosts(){ return visiblePosts().filter(p => S.calPlat === 'todas' || plats(p).includes(S.calPlat)); }
 function calSort(a,b){ const ha = a.hora_prevista || '99', hb = b.hora_prevista || '99'; return ha < hb ? -1 : ha > hb ? 1 : (a.ordem||0)-(b.ordem||0); }
 function calItem(p){
   const thumb = (p.midias||[]).length ? `<span class="ct">${coverEl(p)}</span>` : '';
@@ -742,11 +746,11 @@ function renderCalendar(){
   if (!$('#calWrap')) return;
   const m0 = S.calMonth, y = m0.getFullYear(), mo = m0.getMonth();
   $('#calTitle').textContent = `${MESES[mo][0].toUpperCase()+MESES[mo].slice(1)} ${y}`;
-  const used = new Set(S.posts.flatMap(plats));
+  const used = new Set(visiblePosts().flatMap(plats));
   const opts = [['todas','Todas']].concat(Object.keys(PLAT).filter(k=>used.has(k) || k==='instagram').map(k=>[k,PLAT[k].n]));
   if (S.calPlat !== 'todas' && !opts.some(o=>o[0]===S.calPlat)) S.calPlat = 'todas';
   $('#calPlat').innerHTML = opts.map(([k,n])=>`<button type="button" data-calplat="${k}" aria-pressed="${S.calPlat===k}">${PLAT[k]?PLAT[k].i(13):''}${esc(n)}</button>`).join('');
-  $('#calLegend').innerHTML = ETAPAS.map(e=>`<span data-k="${e.k}"><i></i>${esc(e.t)}</span>`).join('');
+  $('#calLegend').innerHTML = visibleEtapas().map(e=>`<span data-k="${e.k}"><i></i>${esc(e.t)}</span>`).join('');
   $('#calHint').hidden = !editing() || narrow();
   const list = calPosts();
   const byDay = {};
@@ -846,7 +850,7 @@ function renderDetail(){
   const p = S.sel && getPost(S.sel);
   if (!p){
     d.classList.remove('open');
-    d.innerHTML = `<div class="detail-empty"><span aria-hidden="true">✦</span><strong>${S.posts.length ? 'Qual post vamos revisar?' : (editing() ? 'Seu feed começa aqui.' : 'Tudo tranquilo por enquanto.')}</strong><p>${S.posts.length ? 'Escolha uma arte no feed para abrir o conteúdo completo.' : (editing() ? 'Use “+ Novo post” para enviar a primeira arte.' : 'Ainda não há novos conteúdos para aprovação.')}</p></div>`;
+    d.innerHTML = `<div class="detail-empty"><span aria-hidden="true">✦</span><strong>${visiblePosts().length ? 'Qual post vamos revisar?' : (editing() ? 'Seu feed começa aqui.' : 'Tudo tranquilo por enquanto.')}</strong><p>${visiblePosts().length ? 'Escolha uma arte no feed para abrir o conteúdo completo.' : (editing() ? 'Use “+ Novo post” para enviar a primeira arte.' : 'Ainda não há novos conteúdos para aprovação.')}</p></div>`;
     return;
   }
   const media = mediaList(p);
@@ -986,9 +990,12 @@ function renderMode(){
   $('#gridEditHint').hidden = !editing();
   $('#sub').textContent = editing()
     ? 'Organize cada conteúdo por etapa: copy e roteiro, produção e aprovação do post. Depois é só mandar o link para o cliente.'
-    : 'Acompanhe cada conteúdo por etapa: aprove os textos, veja as artes no feed e aprove ou peça ajuste.';
+    : 'Veja os posts enviados para aprovação, confira como ficam no feed e aprove ou peça ajuste.';
 }
-function renderAll(){ renderMode(); renderView(); renderProfile(); renderSummary(); renderBoard(); renderCalendar(); renderGrid(); renderDetail(); }
+function renderAll(){
+  if (S.card && !getPost(S.card)){ closeModal($('#cardModal')); S.card=null; }
+  if (S.sel && !getPost(S.sel)) S.sel=null;
+  renderMode(); renderView(); renderProfile(); renderSummary(); renderBoard(); renderCalendar(); renderGrid(); renderDetail(); }
 
 /* ---------- data ---------- */
 function errMsg(e){ const m = (e && (e.message||'')) || ''; return /fora_de_aprovacao/.test(m) ? 'Este conteúdo não está mais em aprovação. Recarregue a página.' : /link_invalido/.test(m) ? 'Este link não é mais válido.' : /permission|policy|JWT|401|403/i.test(m) ? 'Você não tem permissão para esta ação.' : 'Não foi possível salvar. Confira a internet e tente de novo.'; }
@@ -1174,7 +1181,7 @@ $('#grid').addEventListener('click', e => {
 $('#summary').addEventListener('click', e => {
   const b = e.target.closest('[data-jump]'); if (!b) return;
   const fn = b.dataset.jump==='wait' ? awaiting : b.dataset.jump==='adj' ? adjusting : (p => ['aprovado','agendado','publicado'].includes(p.etapa));
-  const p = [...S.posts].sort(colSort).find(fn); if (p) openItem(p);
+  const p = visiblePosts().sort(colSort).find(fn); if (p) openItem(p);
 });
 $('#views').addEventListener('click', e => { const b = e.target.closest('[data-view]'); if (!b) return; S.view = b.dataset.view; renderView(); if (S.view==='feed'){ renderGrid(); renderDetail(); } });
 $('#board').addEventListener('click', e => {
@@ -1184,6 +1191,7 @@ $('#board').addEventListener('click', e => {
   const p = getPost(c.dataset.card); if (p) openItem(p);
 });
 function openItem(p){
+  if (!p || !clientVisible(p)) return;
   if (FEED_ETAPAS.includes(p.etapa)){
     S.view = 'feed'; S.sel = p.id; S.slide = 0; S.capOpen = false;
     renderView(); renderGrid(); renderDetail();
@@ -1434,8 +1442,9 @@ async function submitPost(){
 
 /* ---------- card de etapa (copy, roteiro, produção) ---------- */
 function stepperHTML(p){
-  const idx = ETAPAS.findIndex(e=>e.k===p.etapa);
-  return `<div class="stepper" aria-label="Etapa atual: ${esc(ETAPA_NOME[p.etapa]||'')}">${ETAPAS.map((e,i)=>`<span class="${i<idx?'done':i===idx?'on':''}">${i<idx?'✓ ':''}${esc(e.t)}</span>`).join('')}</div>`;
+  const steps = visibleEtapas();
+  const idx = steps.findIndex(e=>e.k===p.etapa);
+  return `<div class="stepper" aria-label="Etapa atual: ${esc(ETAPA_NOME[p.etapa]||'')}">${steps.map((e,i)=>`<span class="${i<idx?'done':i===idx?'on':''}">${i<idx?'✓ ':''}${esc(e.t)}</span>`).join('')}</div>`;
 }
 function openCard(id, keep){
   const p = getPost(id); const m = $('#cardModal');
