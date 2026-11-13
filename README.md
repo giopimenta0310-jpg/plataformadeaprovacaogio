@@ -79,6 +79,18 @@ insert into public.admins (email) values ('email@exemplo.com');
 **Margô Cafés Especiais** (@margo), Joinville. Abertura em 10/10.
 
 
-### Grid da Margô
+### Ordem do grid
 
-O portal da Margô reúne publicados e conteúdos em aprovação, aprovados ou agendados em uma única sequência crescente de data e horário: por exemplo, dia 10 → dia 12 → dia 14, independentemente do status. Posts sem data ficam ao final; empates preservam a ordem manual anterior. A regra usa o identificador público do portal e mantém os outros clientes na ordenação manual. Os botões manuais de posição ficam desabilitados para a Margô. Nenhum registro de publicação é alterado por essa visualização.
+Na área da agência, arraste uma arte sobre a posição desejada. No celular, use o símbolo ↕ no canto da arte. Os botões “Mover antes” e “Mover depois” oferecem a mesma organização pelo painel de detalhes. A ordem fica salva no banco e aparece para o cliente em outros navegadores e computadores. Datas, status, mídias e legendas não são alterados.
+
+A Margô mantém a ordem crescente por data até o primeiro movimento manual. Depois disso, a ordem manual prevalece; novos conteúdos entram no início do grid. Os outros clientes mantêm a ordenação manual existente.
+
+A implementação reserva valores a partir de 1.000.000 na coluna inteira `posts.ordem` para identificar uma sequência manual salva, sem migração de banco. Cada gravação valida cliente, ordem anterior e retorno do servidor. Em falha parcial, as gravações confirmadas são revertidas com comparação da ordem gravada, evitando sobrescrever uma mudança concorrente. O cliente continua sem controles de edição.
+
+Validação local da interação (Chrome/Chromium instalado):
+
+```sh
+python3 tests/grid-reorder.browser.py --chrome /caminho/para/chrome
+```
+
+O teste usa a página completa com dados fictícios e um banco em memória; não solicita login nem grava na plataforma real.

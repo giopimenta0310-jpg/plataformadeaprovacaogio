@@ -135,6 +135,13 @@ button.pill{border:0}
 .badge.aprovado i{background:#2f7a55}
 .badge.ajuste i{background:#e0444e}
 .grid:has(.tile.sel) .tile:not(.sel){opacity:.68}.tile.sel{z-index:2;transform:scale(.96);box-shadow:0 0 0 3px var(--pink),0 8px 18px rgba(33,23,28,.35)}.tile.sel::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 2px #fff,inset 0 0 0 4px var(--burgundy)}.tile.sel::before{content:"Em análise";position:absolute;z-index:3;left:6px;top:6px;background:var(--burgundy);color:#fff;border-radius:999px;padding:3px 7px;font-size:9px;font-weight:700;letter-spacing:.02em}
+#gridEditHint{padding:12px;background:var(--surface);max-width:none}
+.tile[draggable="true"]{cursor:grab}
+.tile.grid-dragging{opacity:.35!important}
+.tile.grid-drop{outline:3px solid var(--pink);outline-offset:-3px}
+.grid-grip{position:absolute;top:5px;left:5px;z-index:5;display:grid;place-items:center;width:30px;height:30px;border-radius:6px;background:rgba(255,255,255,.94);color:var(--burgundy);font-size:22px;line-height:1;cursor:grab;touch-action:none;user-select:none}
+.grid-ghost{position:fixed;z-index:10000;pointer-events:none;opacity:.85;transform:rotate(-3deg);box-shadow:0 8px 24px #0004}
+#grid[aria-busy="true"]{opacity:.65;pointer-events:none}
 .tile.old{filter:saturate(.75)}
 .tile.old.dim{opacity:.55}
 .empty-tile{aspect-ratio:3/4;background:var(--phone-line);opacity:.5}
@@ -471,7 +478,8 @@ body.is-dragging{cursor:grabbing}
           <div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="2.5" width="18" height="19" rx="4"/><path d="M3 8h18M8 2.5l3 5.5M14 2.5l3 5.5"/><path d="M10 12v5l4.5-2.5z" fill="currentColor"/></svg></div>
           <div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="10" r="3"/><path d="M6.5 19c1.2-2.6 3.2-4 5.5-4s4.3 1.4 5.5 4"/></svg></div>
         </div>
-        <div class="grid" id="grid"></div>
+        <p class="legend" id="gridEditHint" hidden>Arraste as artes para organizar o grid. No celular, arraste pelo símbolo ↕. A ordem é salva para o cliente; as datas não mudam.</p>
+        <div class="grid" id="grid" aria-label="Grid de publicações"></div>
       </div>
       <p class="legend">Toque em uma arte para ver o post completo. Os posts já publicados aparecem só para compor o feed.</p>
     </section>
@@ -597,7 +605,14 @@ function coverEl(p){
 function captionHTML(t){ return esc(t).replace(/(^|\s)([#@][\p{L}\p{N}_.]+)/gu, '$1<span class="ht">$2</span>'); }
 const FEED_ETAPAS = ['aprovacao','aprovado','agendado','publicado'];
 function feedPosts(){ return S.posts.filter(p => FEED_ETAPAS.includes(p.etapa)); }
-function feedByPublicationDate(){ return S.token === '09d3417e-4eff-40da-a56b-72859f864732'; }
+// A saved manual order takes precedence over Margô's initial chronological preview.
+// Reserve a high integer range in the existing ordem column; no schema change is needed.
+const GRID_MANUAL_BASE = 1000000;
+let GRID_SAVE_BUSY = false;
+function feedByPublicationDate(){
+  return S.token === '09d3417e-4eff-40da-a56b-72859f864732'
+    && !feedPosts().some(p => Number(p.ordem) >= GRID_MANUAL_BASE);
+}
 function sorted(){
   const list = feedPosts();
   if (!feedByPublicationDate()) {
@@ -816,11 +831,13 @@ function renderGrid(){
     const icon = p.tipo==='carrossel' ? I.car : p.tipo==='reels' ? I.reel : '';
     const badge = (S.showStatus && p.status !== 'publicado') ? `<span class="badge ${p.status}"><i></i>${SHORT[p.status]||''}</span>` : '';
     const old = p.status === 'publicado' ? ' old' + (S.showStatus ? ' dim' : '') : '';
-    return `<button type="button" class="tile${p.id===S.sel?' sel':''}${old}" data-id="${esc(p.id)}" aria-label="${esc(TYPES[p.tipo]||'Post')} – ${esc(STATUS[p.status]||'')}">${coverEl(p)}${icon?`<span class="ticon">${icon}</span>`:''}${badge}</button>`;
+    return `<button type="button" class="tile${p.id===S.sel?' sel':''}${old}" data-id="${esc(p.id)}" ${editing()&&!GRID_SAVE_BUSY?'draggable="true"':''} aria-label="${esc(TYPES[p.tipo]||'Post')} – ${esc(STATUS[p.status]||'')}">${coverEl(p)}${editing()?'<span class="grid-grip" aria-hidden="true" title="Arrastar publicação">↕</span>':''}${icon?`<span class="ticon">${icon}</span>`:''}${badge}</button>`;
   }).join('');
   const pad = (3 - (list.length % 3)) % 3 + (list.length < 9 ? 3 * Math.ceil((9 - list.length)/3) : 0);
   for (let i=0;i<pad;i++) html += '<div class="empty-tile"></div>';
   g.innerHTML = html;
+  g.setAttribute('aria-busy', String(GRID_SAVE_BUSY));
+  g.querySelectorAll('img,video').forEach(el => el.draggable = false);
 }
 function renderDetail(){
   const d = $('#detail');
@@ -928,8 +945,8 @@ function renderDetail(){
         <div class="row">
           <button type="button" class="btn small" data-act="edit">Editar post</button>
           <button type="button" class="btn small" data-act="card">Etapa e texto</button>
-          <button type="button" class="btn small" data-act="up" ${feedByPublicationDate()||idx<=0?'disabled':''}>← Mais recente</button>
-          <button type="button" class="btn small" data-act="down" ${feedByPublicationDate()||idx>=list.length-1?'disabled':''}>Mais antigo →</button>
+          <button type="button" class="btn small" data-act="up" ${GRID_SAVE_BUSY||idx<=0?'disabled':''}>← Mover antes</button>
+          <button type="button" class="btn small" data-act="down" ${GRID_SAVE_BUSY||idx>=list.length-1?'disabled':''}>Mover depois →</button>
           <button type="button" class="btn small danger" data-act="del">Excluir</button>
         </div>
       </div>` : ''}
@@ -964,6 +981,7 @@ function renderMode(){
   $('#modeSeg').hidden = !S.isOwner;
   document.querySelectorAll('#modeSeg button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.mode===S.mode)));
   $('#agencyBar').hidden = !editing();
+  $('#gridEditHint').hidden = !editing();
   $('#sub').textContent = editing()
     ? 'Organize cada conteúdo por etapa: copy e roteiro, produção e aprovação do post. Depois é só mandar o link para o cliente.'
     : 'Acompanhe cada conteúdo por etapa: aprove os textos, veja as artes no feed e aprove ou peça ajuste.';
@@ -1002,6 +1020,7 @@ async function loadAll(){
 let reloadT = null;
 function scheduleReload(){ clearTimeout(reloadT); reloadT = setTimeout(refresh, 250); }
 async function refresh(){
+  if (GRID_SAVE_BUSY) return;
   try { await loadAll(); } catch(e){
     const n=$('#notice'); n.hidden=false; const m = String(e && e.message || '');
     n.innerHTML = m==='sem_link' ? '<strong>Este link está incompleto.</strong> Peça para a agência o link de aprovação da sua marca.'
@@ -1025,8 +1044,109 @@ async function savePost(id, patch){
   return true;
 }
 
+/* ---------- manual feed order ---------- */
+const GRID_DRAG = { id:null, pointer:null, ghost:null, dx:0, dy:0, suppressUntil:0 };
+function gridTargetAt(x,y){
+  const tile = document.elementFromPoint(x,y)?.closest('#grid .tile');
+  return tile && tile.dataset.id !== GRID_DRAG.id ? tile : null;
+}
+function gridHighlight(tile){
+  $('#grid').querySelectorAll('.grid-drop').forEach(el => el.classList.remove('grid-drop'));
+  if (tile) tile.classList.add('grid-drop');
+}
+function clearGridDrag(){
+  GRID_DRAG.ghost?.remove();
+  Object.assign(GRID_DRAG,{id:null,pointer:null,ghost:null});
+  $('#grid').querySelectorAll('.tile').forEach(el => el.classList.remove('grid-drop','grid-dragging'));
+}
+async function moveGridPost(sourceId,targetId){
+  if (!editing() || GRID_SAVE_BUSY || sourceId === targetId || !S.clientId) return false;
+  const list = sorted();
+  const from = list.findIndex(p=>p.id===sourceId), to = list.findIndex(p=>p.id===targetId);
+  if (from < 0 || to < 0) return false;
+  const [moved] = list.splice(from,1); list.splice(to,0,moved);
+  const clientId = S.clientId;
+  const stamp = new Date().toISOString();
+  const updates = list.map((p,i)=>({id:p.id, previous:p.ordem ?? null, next:GRID_MANUAL_BASE+list.length-i}));
+  GRID_SAVE_BUSY = true; renderGrid(); renderDetail();
+  const write = async (u,value,expected) => {
+    let q = sb.from('posts').update({ordem:value,updated_at:stamp}).eq('id',u.id).eq('cliente_id',clientId);
+    q = expected === null ? q.is('ordem',null) : q.eq('ordem',expected);
+    const {data,error} = await q.select('id,ordem');
+    if (error) throw error;
+    if (!data || data.length !== 1) throw new Error('grid_changed_or_no_permission');
+  };
+  let saved = false;
+  try {
+    const results = await Promise.allSettled(updates.map(u=>write(u,u.next,u.previous)));
+    if (results.some(r=>r.status==='rejected')){
+      // Roll back only successful writes, and never overwrite a concurrent edit.
+      const rollback = await Promise.allSettled(updates.filter((u,i)=>results[i].status==='fulfilled').map(u=>write(u,u.previous,u.next)));
+      toast(rollback.some(r=>r.status==='rejected')
+        ? 'Não foi possível concluir a ordem. Confira o grid antes de tentar novamente.'
+        : 'Não foi possível salvar a ordem. Recarregue e tente novamente.');
+    } else {
+      updates.forEach(u=>{ const p=getPost(u.id); if(p) p.ordem=u.next; });
+      saved = true; toast('Ordem do grid salva para você e para o cliente');
+    }
+  } finally {
+    GRID_SAVE_BUSY = false; renderGrid(); renderDetail();
+  }
+  await refresh();
+  return saved;
+}
+$('#grid').addEventListener('dragstart', e => {
+  const tile=e.target.closest('.tile');
+  if (!editing() || GRID_SAVE_BUSY || GRID_DRAG.pointer !== null || !tile){e.preventDefault();return;}
+  GRID_DRAG.id=tile.dataset.id; tile.classList.add('grid-dragging');
+  e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain',GRID_DRAG.id);
+});
+$('#grid').addEventListener('dragover', e => {
+  if (!GRID_DRAG.id || GRID_DRAG.pointer !== null || !editing() || GRID_SAVE_BUSY) return;
+  const tile=e.target.closest('.tile'); if(!tile || tile.dataset.id===GRID_DRAG.id) return;
+  e.preventDefault(); e.dataTransfer.dropEffect='move'; gridHighlight(tile);
+});
+$('#grid').addEventListener('dragleave', e => {
+  const tile=e.target.closest('.tile'); if(tile&&!tile.contains(e.relatedTarget))tile.classList.remove('grid-drop');
+});
+$('#grid').addEventListener('dragend', clearGridDrag);
+$('#grid').addEventListener('drop', async e => {
+  const tile=e.target.closest('.tile'), id=GRID_DRAG.id;
+  if(!id || GRID_DRAG.pointer !== null) return;
+  e.preventDefault(); GRID_DRAG.suppressUntil=Date.now()+300; clearGridDrag();
+  if(tile) await moveGridPost(id,tile.dataset.id);
+});
+// The dedicated handle supports touch and pen without blocking normal page scrolling.
+$('#grid').addEventListener('pointerdown', e => {
+  const grip=e.target.closest('.grid-grip');
+  if(!grip || !editing() || GRID_SAVE_BUSY || e.button>0) return;
+  e.preventDefault(); const tile=grip.closest('.tile'), r=tile.getBoundingClientRect();
+  const ghost=tile.cloneNode(true); ghost.classList.add('grid-ghost');
+  ghost.style.width=r.width+'px'; ghost.style.height=r.height+'px';
+  ghost.style.left=r.left+'px'; ghost.style.top=r.top+'px'; document.body.appendChild(ghost);
+  Object.assign(GRID_DRAG,{id:tile.dataset.id,pointer:e.pointerId,ghost,dx:e.clientX-r.left,dy:e.clientY-r.top});
+  tile.classList.add('grid-dragging'); $('#grid').setPointerCapture(e.pointerId);
+});
+window.addEventListener('pointermove', e => {
+  if(GRID_DRAG.pointer!==e.pointerId || !GRID_DRAG.ghost) return;
+  e.preventDefault(); GRID_DRAG.ghost.style.left=(e.clientX-GRID_DRAG.dx)+'px';
+  GRID_DRAG.ghost.style.top=(e.clientY-GRID_DRAG.dy)+'px'; gridHighlight(gridTargetAt(e.clientX,e.clientY));
+  if(e.clientY<65) window.scrollBy(0,-14); else if(e.clientY>innerHeight-65) window.scrollBy(0,14);
+},{passive:false});
+window.addEventListener('pointerup', async e => {
+  if(GRID_DRAG.pointer!==e.pointerId) return;
+  const tile=gridTargetAt(e.clientX,e.clientY), id=GRID_DRAG.id;
+  GRID_DRAG.suppressUntil=Date.now()+300; clearGridDrag();
+  if($('#grid').hasPointerCapture(e.pointerId)) $('#grid').releasePointerCapture(e.pointerId);
+  if(tile) await moveGridPost(id,tile.dataset.id);
+});
+window.addEventListener('pointercancel', e => { if(GRID_DRAG.pointer===e.pointerId) clearGridDrag(); });
+$('#grid').addEventListener('lostpointercapture', e => { if(GRID_DRAG.pointer===e.pointerId) clearGridDrag(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') clearGridDrag(); });
+
 /* ---------- events ---------- */
 $('#grid').addEventListener('click', e => {
+  if (GRID_SAVE_BUSY || Date.now() < GRID_DRAG.suppressUntil){ e.preventDefault(); return; }
   const t = e.target.closest('.tile'); if (!t) return;
   if (S.sel !== t.dataset.id){ S.sel = t.dataset.id; S.slide = 0; S.capOpen = false; }
   renderGrid(); renderDetail();
@@ -1091,12 +1211,9 @@ $('#detail').addEventListener('click', async e => {
   if (act==='edit'){ openPostForm(p); return; }
   if (act==='card'){ openCard(p.id); return; }
   if (act==='up' || act==='down'){
-    if (feedByPublicationDate()) return;
-    const list = sorted(); const i = list.findIndex(x=>x.id===p.id); const j = act==='up' ? i-1 : i+1;
-    const q = list[j]; if (!q) return;
-    const a = p.ordem, bb = q.ordem === p.ordem ? p.ordem + (act==='up'?1:-1) : q.ordem;
-    if (await savePost(p.id, {ordem: bb})) await savePost(q.id, {ordem: a});
-    await refresh();
+    const list = sorted(); const i = list.findIndex(x=>x.id===p.id);
+    const target = list[act==='up' ? i-1 : i+1];
+    if (target) await moveGridPost(p.id, target.id);
     return;
   }
   if (act==='del'){
