@@ -142,7 +142,7 @@ function renderClients(clients, profiles, posts, rounds){
     const round = roundsByClient.get(client.id);
     const mark = client.slug === 'margo' ? '#8b1f59' : '#21171c';
     const initial = (client.nome || '?').trim().charAt(0).toUpperCase();
-    const meta = [client.usuario_instagram ? `@${client.usuario_instagram.replace(/^@/,'')}` : '', client.cidade || (client.slug === 'gio-portfolio' ? 'cliente de teste' : '')].filter(Boolean).join(' · ');
+    const meta = [client.usuario_instagram ? `@${client.usuario_instagram.replace(/^@/,'')}` : '', client.cidade || ''].filter(Boolean).join(' · ');
     const reviewed = counts.aprovado + counts.ajuste;
     const progress = counts.total ? Math.round(reviewed / counts.total * 100) : 0;
     const profileName = profile?.nome || client.nome;
