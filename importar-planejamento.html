@@ -1,21 +1,26 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Importar planejamento · Gio</title>
-<style>body{margin:0;background:#fffaf3;color:#21171c;font:16px system-ui}main{max-width:960px;margin:40px auto;padding:24px}h1{font-size:32px}textarea{display:block;box-sizing:border-box;width:100%;height:210px;margin:16px 0;padding:16px;font:13px ui-monospace,monospace;border:1px solid #b8adb0;border-radius:8px;background:white}button,a{font:inherit}button{padding:12px 20px;border:1px solid #6b2442;border-radius:8px;background:#f49ac2;color:#21171c;cursor:pointer}button:disabled{opacity:.45;cursor:default}a{color:#6b2442}table{border-collapse:collapse;width:100%;font-size:14px}td,th{text-align:left;padding:12px 8px;border-bottom:1px solid #ded5ce}.actions{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}.error{color:#a02030}#status{white-space:pre-wrap;line-height:1.5}[hidden]{display:none!important}</style>
+<style>body{margin:0;background:#fffaf3;color:#21171c;font:16px system-ui}main{max-width:960px;margin:40px auto;padding:24px}h1{font-size:32px}textarea{display:block;box-sizing:border-box;width:100%;height:210px;margin:16px 0;padding:16px;font:13px ui-monospace,monospace;border:1px solid #b8adb0;border-radius:8px;background:white}button,a{font:inherit}button{padding:12px 20px;border:1px solid #6b2442;border-radius:8px;background:#f49ac2;color:#21171c;cursor:pointer}button:disabled{opacity:.45;cursor:default}a{color:#6b2442}table{border-collapse:collapse;width:100%;font-size:14px}td,th{text-align:left;padding:12px 8px;border-bottom:1px solid #ded5ce}.actions{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}.error{color:#a02030}#status{white-space:pre-wrap;line-height:1.5}.mgmt{margin-top:40px;padding-top:18px;border-top:1px solid #ded5ce;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}.mgmt-label{grid-column:1/-1;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.mgmt a{display:flex;flex-direction:column;gap:2px;text-decoration:none;color:#21171c;background:#fff;border:1px solid #ded5ce;border-radius:8px;padding:11px 14px}.mgmt a:hover{border-color:#6e5d65}.mgmt a[aria-current="page"]{border-color:#21171c;box-shadow:inset 3px 0 0 #ed5f67}.mgmt b{font-size:14px}.mgmt small{font-size:12px;color:#6e5d65}[hidden]{display:none!important}</style>
 <script src="config.js"></script><script src="supabase.js"></script><script src="planejamento-import.js"></script></head>
 <body><main><a id="back" href="/">← Voltar à plataforma</a><h1>Importar planejamento</h1><p>Adicione ideias em <strong>Copy e roteiro</strong>, com suas datas propostas. A importação não publica artes e preserva os conteúdos já cadastrados.</p>
 <p id="account" role="status">Conferindo o acesso da agência…</p>
 <section id="editor" hidden><label for="planningFile">Arquivo JSON do planejamento</label> <input id="planningFile" type="file" accept=".json,application/json"><textarea id="planningJson" aria-label="JSON do planejamento" placeholder="Cole o planejamento JSON aqui ou selecione o arquivo acima."></textarea>
 <div class="actions"><button id="preview">Conferir planejamento</button><button id="apply" disabled>Importar ideias</button></div><div id="summary"></div><table id="list" hidden><thead><tr><th>Ação</th><th>Data proposta</th><th>Conteúdo</th></tr></thead><tbody></tbody></table></section>
-<p id="status" role="status" aria-live="polite"></p></main>
+<p id="status" role="status" aria-live="polite"></p>
+<nav class="mgmt" aria-label="Área da gerência"><span class="mgmt-label">Área da gerência</span>
+<a href="/central-agencia"><b>Central da agência</b><small>Todos os clientes, links e status</small></a>
+<a href="/" id="mgmtApproval"><b>Aprovação de posts</b><small>Etapas, calendário e prévia do feed</small></a>
+<a href="" aria-current="page"><b>Importar planejamento</b><small>Inserir posts em JSON</small></a></nav></main>
 <script>
 (async()=>{
  const $=s=>document.querySelector(s), cfg=window.APROVACAO_CONFIG||{}, token=new URLSearchParams(location.search).get('c');
  const sb=window.supabase.createClient(cfg.url,cfg.key), esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- $('#back').href='/?c='+encodeURIComponent(token||'');let prepared=null,busy=false;
+ $('#back').href='/?c='+encodeURIComponent(token||'');if(token)$('#mgmtApproval').href='/?c='+encodeURIComponent(token);let prepared=null,busy=false;
  const status=(message,error=false)=>{$('#status').textContent=message;$('#status').className=error?'error':'';};
  try{
   const {data,error}=await sb.auth.getSession();if(error||!data.session)throw Error('Entre na Área da agência na plataforma e volte a esta página.');
   const admin=await sb.rpc('is_admin');if(admin.error||!admin.data)throw Error('Este acesso não tem permissão de agência.');
+  if(!token)throw Error('Escolha o cliente primeiro: abra esta página pelo botão “Importar JSON” no card do cliente, na Central da agência, ou pelo rodapé da plataforma de aprovação.');
   $('#account').textContent='Acesso da agência confirmado.';$('#editor').hidden=false;
  }catch(e){$('#account').textContent=e.message;return;}
  const invalidate=()=>{prepared=null;$('#apply').disabled=true;$('#summary').textContent='';$('#list').hidden=true;};

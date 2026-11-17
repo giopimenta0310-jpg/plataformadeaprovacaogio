@@ -259,6 +259,13 @@ textarea{resize:vertical;min-height:76px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 .foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:16px;margin-top:8px;font-size:12px;color:var(--muted)}
+.mgmt{flex-basis:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin-top:6px}
+.mgmt-label{grid-column:1/-1;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+.mgmt a{display:flex;flex-direction:column;gap:2px;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:11px 14px}
+.mgmt a:hover{border-color:var(--muted)}
+.mgmt a[aria-current="page"]{border-color:var(--ink);box-shadow:inset 3px 0 0 var(--coral)}
+.mgmt b{font-size:13.5px;font-weight:650}
+.mgmt small{font-size:12px;color:var(--muted)}
 .linkbtn{border:0;background:none;padding:0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;font-size:12px}
 .linkbtn:hover{color:var(--ink)}
 .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;z-index:80;box-shadow:var(--shadow)}
@@ -486,7 +493,14 @@ body.is-dragging{cursor:grabbing}
 
     <aside class="detail" id="detail" aria-live="polite"></aside>
   </main>
-  <footer class="foot"><span>Plataforma de aprovação · Gio</span><button type="button" class="linkbtn" id="btnLogin">Área da agência</button></footer>
+  <footer class="foot"><span>Plataforma de aprovação · Gio</span><button type="button" class="linkbtn" id="btnLogin">Área da agência</button>
+    <nav class="mgmt" id="mgmtNav" aria-label="Área da gerência" hidden>
+      <span class="mgmt-label">Área da gerência</span>
+      <a href="/central-agencia"><b>Central da agência</b><small>Todos os clientes, links e status</small></a>
+      <a href="/" aria-current="page"><b>Aprovação de posts</b><small>Etapas, calendário e prévia do feed</small></a>
+      <a href="/importar-planejamento" id="mgmtImport"><b>Importar planejamento</b><small>Inserir posts em JSON</small></a>
+    </nav>
+  </footer>
 </div>
 
 <div class="modal" id="postModal" hidden></div>
@@ -984,6 +998,7 @@ function updateSlideUI(n){
   if(l) l.hidden = S.slide===0; if(r) r.hidden = S.slide===n-1;
 }
 function renderMode(){
+  const imp = $('#mgmtImport'); if (imp) imp.href = '/importar-planejamento' + (S.token ? '?c=' + encodeURIComponent(S.token) : '');
   $('#modeSeg').hidden = !S.isOwner;
   document.querySelectorAll('#modeSeg button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.mode===S.mode)));
   $('#agencyBar').hidden = !editing();
@@ -1771,6 +1786,7 @@ async function applySession(session){
   if (!admin) S.mode = 'cliente';
   const lb = $('#btnLogin'); lb.textContent = session ? 'Sair da área da agência' : 'Área da agência'; lb.dataset.out = session ? '1' : '';
   $('#btnLogout').hidden = !session;
+  $('#mgmtNav').hidden = !admin;
   renderAll();
 }
 renderAll();
