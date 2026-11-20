@@ -310,6 +310,19 @@ textarea{resize:vertical;min-height:76px}
 .kcard .kthumb .sample{font-size:0;padding:0}
 .kbody{display:flex;flex-direction:column;gap:7px;min-width:0;flex:1;padding:12px 14px 13px}
 .kmeta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:11.5px;color:var(--muted)}
+.pilar{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:1px 8px 1px 6px;font-size:11px;font-weight:650;color:var(--pc);background:color-mix(in srgb,var(--pc) 13%,var(--surface));border:1px solid color-mix(in srgb,var(--pc) 35%,transparent);white-space:nowrap}
+.pilar::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--pc)}
+.pilar.none{--pc:var(--muted);border-style:dashed}
+.cal-item .pdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--pc);margin-right:5px;vertical-align:1px}
+.pilar-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0 2px}
+.pilar-bar>span{font-size:12px;color:var(--muted);margin-right:2px}
+.pilar-bar button{cursor:pointer;font:inherit}
+.pilar-bar button.pilar{font-size:12px;padding:3px 10px 3px 8px}
+.pilar-bar button[aria-pressed="true"]{background:var(--pc);color:#fff}
+.pilar-bar button[aria-pressed="true"]::before{background:#fff}
+.pilar-bar button.all{border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font-size:12px;font-weight:650;padding:3px 10px}
+.pilar-bar button.all[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+.pilar-bar small{opacity:.75;font-weight:600}
 .chip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:11px;font-weight:600;color:var(--ink);background:var(--surface)}
 .ktitle{font-family:var(--serif);font-size:19px;line-height:1.15;letter-spacing:-.01em;overflow-wrap:anywhere}
 .kexc{font-size:13px;line-height:1.45;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
@@ -450,6 +463,7 @@ body.is-dragging{cursor:grabbing}
       </div>
       <div class="fseg" id="calPlat" role="group" aria-label="Filtrar por rede"></div>
     </div>
+    <div class="pilar-bar" id="calPilar" role="group" aria-label="Filtrar por pilar de conteúdo"></div>
     <div class="cal-legend" id="calLegend"></div>
     <p class="board-hint" id="calHint" hidden>Arraste um post para outro dia para mudar a data. Use o + de cada dia para criar um card já com a data.</p>
     <div id="calBody"></div>
@@ -560,6 +574,20 @@ const blob = path => sb ? sb.storage.from(BUCKET).getPublicUrl(path).data.public
 const STATUS = {pendente:'Aguardando aprovação', aprovado:'Aprovado', ajuste:'Ajuste pedido', publicado:'Já publicado'};
 const SHORT = {pendente:'Pendente', aprovado:'Aprovado', ajuste:'Ajuste'};
 const TYPES = {post:'Post', carrossel:'Carrossel', reels:'Reels'};
+const PILARES = {
+  desejo:{n:'Desejo de produto', c:'#c0533a', d:'O que dá vontade de provar e o que faz aquele pedido ter a cara da casa.'},
+  pessoas:{n:'Pessoas e autoria', c:'#7a5aa6', d:'Quem faz a Margô e o que essas pessoas trazem para o café e a cozinha.'},
+  casa:{n:'A casa e os encontros', c:'#3f7d58', d:'O que acontece na casinha e como é passar um tempo ali.'},
+  visita:{n:'Facilitar a visita', c:'#2f6aa3', d:'O que a pessoa precisa saber para decidir ir, participar ou voltar.'}
+};
+function pilarChip(p, empty=false){
+  const k = p && p.pilar; const v = PILARES[k];
+  if (!v) return empty && editing() ? '<span class="pilar none" title="Sem pilar definido">Sem pilar</span>' : '';
+  return `<span class="pilar" style="--pc:${v.c}" title="${esc(v.n)} — ${esc(v.d)}">${esc(v.n)}</span>`;
+}
+function pilarSelect(id, cur){
+  return `<div class="field"><label for="${id}">Pilar de conteúdo</label><select id="${id}"><option value="">Sem pilar</option>${Object.entries(PILARES).map(([k,v])=>`<option value="${k}" ${cur===k?'selected':''}>${esc(v.n)}</option>`).join('')}</select></div>`;
+}
 const PLAT = {
   instagram:{n:'Instagram', i:s=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg>`},
   tiktok:{n:'TikTok', i:s=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14.5 3h3c.2 1.9 1.5 3.4 3.5 3.6v3.1c-1.3 0-2.5-.4-3.5-1v6.4A6.1 6.1 0 1 1 11.4 9v3.2a2.9 2.9 0 1 0 3.1 2.9z"/></svg>`}
@@ -578,7 +606,7 @@ function pubInfoHTML(p){
 const S = {
   posts: [], perfil: {nome:'', usuario:'perfil', bio:'', seguidores:'0', seguindo:'0', avatar:null},
   sel: null, slide: 0, mode: 'cliente', isOwner: false, session: null, clientId: null, roundId: null, token: URL_TOKEN, view: 'quadro', loaded: false,
-  calMonth: (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })(), calPlat: 'todas',
+  calMonth: (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })(), calPlat: 'todas', calPilar: 'todos',
   showStatus: true, capOpen: false, busy: false, draft: {}, reelView: 'reels', ar: {}
 };
 try { const v = localStorage.getItem('ap_showStatus'); if (v !== null) S.showStatus = v === '1'; } catch(e){}
@@ -729,7 +757,7 @@ function renderBoard(){
       return `<button type="button" class="kcard${!editing() && awaiting(p) ? ' turn' : ''}" data-card="${esc(p.id)}">
         ${kthumb(p)}
         <span class="kbody">
-          <span class="kmeta"><span class="chip">${esc(TYPES[p.tipo]||'Post')}</span>${platIcons(p)}${p.data_prevista?`<span>${esc(fmtDay(p.data_prevista))}${p.hora_prevista?' · '+esc(fmtHora(p.hora_prevista)):''}</span>`:''}</span>
+          <span class="kmeta"><span class="chip">${esc(TYPES[p.tipo]||'Post')}</span>${pilarChip(p,true)}${platIcons(p)}${p.data_prevista?`<span>${esc(fmtDay(p.data_prevista))}${p.hora_prevista?' · '+esc(fmtHora(p.hora_prevista)):''}</span>`:''}</span>
           <span class="ktitle">${esc(cardTitle(p))}</span>
           ${exc ? `<span class="kexc">${esc(exc)}</span>` : ''}
           <span class="kfoot">${kstate(p)}${ncom?`<span class="kcom" title="Comentários">💬 ${ncom}</span>`:''}</span>
@@ -748,13 +776,13 @@ function renderBoard(){
 /* ---------- calendário ---------- */
 const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 const DOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-function calPosts(){ return visiblePosts().filter(p => S.calPlat === 'todas' || plats(p).includes(S.calPlat)); }
+function calPosts(){ return visiblePosts().filter(p => (S.calPlat === 'todas' || plats(p).includes(S.calPlat)) && (S.calPilar === 'todos' || (S.calPilar === 'sem' ? !PILARES[p.pilar] : p.pilar === S.calPilar))); }
 function calSort(a,b){ const ha = a.hora_prevista || '99', hb = b.hora_prevista || '99'; return ha < hb ? -1 : ha > hb ? 1 : (a.ordem||0)-(b.ordem||0); }
 function calItem(p){
   const thumb = (p.midias||[]).length ? `<span class="ct">${coverEl(p)}</span>` : '';
   const meta = [p.hora_prevista ? esc(fmtHora(p.hora_prevista)) : '', esc(TYPES[p.tipo]||'Post')].filter(Boolean).join(' · ');
-  return `<div role="button" tabindex="0" class="cal-item${!editing() && awaiting(p) ? ' turn' : ''}" data-k="${esc(p.etapa)}" data-calitem="${esc(p.id)}" ${editing()?'draggable="true"':''} title="${esc(cardTitle(p))} — ${esc(ETAPA_NOME[p.etapa]||'')}">
-    ${thumb}<span class="cx"><b>${esc(cardTitle(p))}</b><small>${platIcons(p,11)}${meta}</small></span></div>`;
+  return `<div role="button" tabindex="0" class="cal-item${!editing() && awaiting(p) ? ' turn' : ''}" data-k="${esc(p.etapa)}" ${PILARES[p.pilar]?`data-pilar="${p.pilar}" style="--pc:${PILARES[p.pilar].c}"`:''} data-calitem="${esc(p.id)}" ${editing()?'draggable="true"':''} title="${esc(cardTitle(p))} — ${esc(ETAPA_NOME[p.etapa]||'')}${PILARES[p.pilar]?' — '+esc(PILARES[p.pilar].n):''}">
+    ${thumb}<span class="cx"><b>${PILARES[p.pilar]?'<i class="pdot" aria-hidden="true"></i>':''}${esc(cardTitle(p))}</b><small>${platIcons(p,11)}${meta}</small></span></div>`;
 }
 function renderCalendar(){
   if (!$('#calWrap')) return;
@@ -764,6 +792,14 @@ function renderCalendar(){
   const opts = [['todas','Todas']].concat(Object.keys(PLAT).filter(k=>used.has(k) || k==='instagram').map(k=>[k,PLAT[k].n]));
   if (S.calPlat !== 'todas' && !opts.some(o=>o[0]===S.calPlat)) S.calPlat = 'todas';
   $('#calPlat').innerHTML = opts.map(([k,n])=>`<button type="button" data-calplat="${k}" aria-pressed="${S.calPlat===k}">${PLAT[k]?PLAT[k].i(13):''}${esc(n)}</button>`).join('');
+  { const mk = `${y}-${String(mo+1).padStart(2,'0')}`;
+    const base = visiblePosts().filter(p => (S.calPlat === 'todas' || plats(p).includes(S.calPlat)) && (p.data_prevista||'').slice(0,7) === mk);
+    const cnt = k => base.filter(p => k==='sem' ? !PILARES[p.pilar] : p.pilar===k).length;
+    const sem = cnt('sem');
+    if (S.calPilar === 'sem' && !sem) S.calPilar = 'todos';
+    $('#calPilar').innerHTML = `<span>Pilares no mês:</span><button type="button" class="all" data-calpilar="todos" aria-pressed="${S.calPilar==='todos'}">Todos <small>${base.length}</small></button>`
+      + Object.entries(PILARES).map(([k,v])=>`<button type="button" class="pilar" style="--pc:${v.c}" data-calpilar="${k}" aria-pressed="${S.calPilar===k}" title="${esc(v.d)}">${esc(v.n)} <small>${cnt(k)}</small></button>`).join('')
+      + (sem && editing() ? `<button type="button" class="pilar none" data-calpilar="sem" aria-pressed="${S.calPilar==='sem'}">Sem pilar <small>${sem}</small></button>` : ''); }
   $('#calLegend').innerHTML = visibleEtapas().map(e=>`<span data-k="${e.k}"><i></i>${esc(e.t)}</span>`).join('');
   $('#calHint').hidden = !editing() || narrow();
   const list = calPosts();
@@ -804,6 +840,7 @@ $('#calWrap').addEventListener('click', e => {
     renderCalendar(); return;
   }
   const pl = e.target.closest('[data-calplat]'); if (pl){ S.calPlat = pl.dataset.calplat; renderCalendar(); return; }
+  const pp = e.target.closest('[data-calpilar]'); if (pp){ S.calPilar = pp.dataset.calpilar; renderCalendar(); return; }
   const add = e.target.closest('[data-caladd]'); if (add){ openCopyForm(null, {data: add.dataset.caladd}); return; }
   const more = e.target.closest('[data-calday]');
   if (more){ const cell = more.closest('.cal-day'); const k = more.dataset.calday;
@@ -918,6 +955,7 @@ function renderDetail(){
   d.innerHTML = `
   <div class="detail-head">
     <h2>${esc(cardTitle(p))} · ${esc(TYPES[p.tipo]||'Post')} · posição ${idx+1} no feed</h2>
+    ${pilarChip(p) ? `<div style="margin:-4px 0 8px">${pilarChip(p)}</div>` : ''}
     <button type="button" class="close" data-act="close" aria-label="Fechar">${I.x}</button>
   </div>
   <div class="detail-body">
@@ -1037,7 +1075,7 @@ async function loadAll(){
   S.posts = (data.posts||[]).map(r => ({ id:r.id, ordem:r.ordem, tipo:r.tipo, status:r.status, legenda:r.legenda||'',
     midias: Array.isArray(r.midias) ? r.midias : [], capa:r.capa, drive_url:r.drive_url, decididoEm:r.decidido_em,
     etapa:r.etapa||'aprovacao', titulo:r.titulo||'', roteiro:r.roteiro||'', data_prevista:r.data_prevista||null, copy_status:r.copy_status||'pendente',
-    hora_prevista:r.hora_prevista||null, plataformas: Array.isArray(r.plataformas) && r.plataformas.length ? r.plataformas : ['instagram'],
+    hora_prevista:r.hora_prevista||null, pilar:r.pilar||null, plataformas: Array.isArray(r.plataformas) && r.plataformas.length ? r.plataformas : ['instagram'],
     comentarios: byPost[r.id]||[] }));
   if (S.clientName) document.title = `${S.clientName} · Aprovação`;
 }
@@ -1283,6 +1321,7 @@ function openPostForm(p){
   m.innerHTML = `<form class="box" id="pf" novalidate>
     <h2>${isNew?'Novo post':(p && (p.etapa==='copy'||p.etapa==='producao') ? 'Enviar arte' : 'Editar post')}</h2>
     <div class="field"><label for="pTitulo">Título do card</label><input type="text" id="pTitulo" maxlength="120" placeholder="Ex.: Reel da obra" value="${esc(F.titulo)}"></div>
+    ${pilarSelect('pPilar', p?.pilar || '')}
     <div class="field"><span>Formato</span>
       <div class="types">
         ${Object.entries(TYPES).map(([k,v])=>`<label><input type="radio" name="tipo" value="${k}" ${F.tipo===k?'checked':''}><b>${v}</b><span>${k==='post'?'1 imagem, 4:5':k==='carrossel'?'2 a 20 imagens/vídeos':'Vídeo vertical 9:16'}</span></label>`).join('')}
@@ -1407,7 +1446,7 @@ async function submitPost(){
     if ((F.tipo==='reels' || F.tipo==='carrossel') && F.capa){ capa = F.capa.file ? await upload(F.capa.file) : F.capa.id; }
     btn.textContent = 'Salvando…';
     let gridPositionId = null;
-    const doc = { tipo: F.tipo, legenda, midias, capa, drive_url, titulo, plataformas, data_prevista, hora_prevista };
+    const doc = { tipo: F.tipo, legenda, midias, capa, drive_url, titulo, plataformas, data_prevista, hora_prevista, pilar: ($('#pPilar')||{}).value || null };
     if (!F.id){
       const maxOrd = Math.max(0, ...S.posts.map(p=>p.ordem||0));
       Object.assign(doc, {ordem: maxOrd+1, status: publicado?'publicado':'pendente', etapa: publicado?'publicado':'aprovacao', copy_status:'aprovado', cliente_id:S.clientId, rodada_id:S.roundId});
@@ -1471,7 +1510,7 @@ function openCard(id, keep){
   const who = c => c.autor==='agencia'?'Agência':c.autor==='cliente'?'Cliente':'Atualização';
   const scroll = keep ? (m.querySelector('.box')?.scrollTop || 0) : 0;
   m.innerHTML = `<div class="box cardbox" role="dialog" aria-modal="true" aria-label="${esc(cardTitle(p))}">
-    <div class="detail-head"><span class="cmeta"><span class="chip">${esc(TYPES[p.tipo]||'Post')}</span>${platIcons(p,14)}</span>
+    <div class="detail-head"><span class="cmeta"><span class="chip">${esc(TYPES[p.tipo]||'Post')}</span>${pilarChip(p,true)}${platIcons(p,14)}</span>
       <button type="button" class="close" style="display:inline-flex" data-cact="close" aria-label="Fechar">${I.x}</button></div>
     <h2>${esc(cardTitle(p))}</h2>
     ${stepperHTML(p)}
@@ -1555,6 +1594,7 @@ function openCopyForm(p, preset){
       ${isNew ? `<div class="field"><label for="cEtapa">Começa em</label><select id="cEtapa">${ETAPAS.filter(e=>!FEED_ETAPAS.includes(e.k)).map(e=>`<option value="${e.k}">${esc(e.t)}</option>`).join('')}</select></div>` : '<div></div>'}
     </div>
     <div class="field"><span>Redes</span>${netPickHTML('cnet', p ? plats(p) : ['instagram'])}</div>
+    ${pilarSelect('cPilar', p?.pilar || preset?.pilar || '')}
     <div class="field"><label for="cRoteiro">Copy / roteiro</label>
       <textarea id="cRoteiro" rows="7" placeholder="Texto das artes, roteiro do Reels, falas, cenas…">${esc(p?.roteiro||'')}</textarea></div>
     <div class="field"><label for="cLegenda">Legenda</label>
@@ -1572,7 +1612,7 @@ function openCopyForm(p, preset){
     const plataformas = readNets(f, 'cnet');
     if (!plataformas){ $('#cErr').textContent = 'Escolha pelo menos uma rede.'; return; }
     const doc = { titulo, tipo: (f.querySelector('input[name="ctipo"]:checked')||{}).value || 'post',
-      data_prevista: $('#cData').value || null, hora_prevista: $('#cHora').value || null, plataformas, roteiro: $('#cRoteiro').value, legenda: $('#cLegenda').value };
+      data_prevista: $('#cData').value || null, hora_prevista: $('#cHora').value || null, plataformas, pilar: $('#cPilar').value || null, roteiro: $('#cRoteiro').value, legenda: $('#cLegenda').value };
     const btn = $('#cSave'); btn.disabled = true;
     try {
       if (isNew){
